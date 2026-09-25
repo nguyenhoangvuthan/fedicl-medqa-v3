@@ -16,7 +16,7 @@ import pandas as pd
 
 from .config import add_config_args, centralized_dir, config_from_args, data_dir
 from .data.io import LETTERS, SPLITS, load_split, to_examples
-from .utils import read_json
+from .utils import read_json, setup_logging
 
 LOG = logging.getLogger("fedicl.visualize")
 
@@ -39,10 +39,12 @@ def split_distribution(cfg, out) -> None:
 def client_bars(stats: pd.DataFrame, title: str, path) -> None:
     fig, ax = plt.subplots(figsize=(1.6 + 0.9 * len(stats), 3.5))
     bottom = np.zeros(len(stats))
+    x = np.arange(len(stats))  # numeric positions: string ids like "1" trigger matplotlib's categorical-units notice
     for l in LETTERS:
         v = stats[f"answer_{l}"].to_numpy()
-        ax.bar(stats["client_id"].astype(str), v, bottom=bottom, label=l)
+        ax.bar(x, v, bottom=bottom, label=l)
         bottom += v
+    ax.set_xticks(x, [str(c) for c in stats["client_id"]])
     ax.set_title(title)
     ax.set_xlabel("client")
     ax.legend(title="answer", fontsize=7)
@@ -111,7 +113,7 @@ def main() -> None:
     add_config_args(p, with_arm=False)
     args = p.parse_args()
     cfg = config_from_args(args)
-    logging.basicConfig(level=logging.INFO)
+    setup_logging()
     out = data_dir(cfg) / "visualizations"
     out.mkdir(parents=True, exist_ok=True)
     split_distribution(cfg, out)

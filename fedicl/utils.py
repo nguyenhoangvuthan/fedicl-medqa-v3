@@ -34,7 +34,7 @@ def setup_logging(log_file: str | Path | None = None, level: int = logging.INFO)
         handlers=handlers,
         force=True,
     )
-    for noisy in ("httpx", "httpcore", "urllib3", "huggingface_hub", "filelock"):
+    for noisy in ("httpx", "httpcore", "urllib3", "huggingface_hub", "filelock", "matplotlib"):
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
 
