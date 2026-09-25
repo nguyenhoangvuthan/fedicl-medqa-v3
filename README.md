@@ -60,6 +60,8 @@ pwsh -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 *>&1 | Tee-Object
 - `run_all.ps1` takes hours. Disconnecting Remote Desktop is fine, **signing out kills it**.
   If it stops, run the same command again: completed arms are skipped, the interrupted one
   resumes from its last saved epoch/round. Per-arm logs: `outputs\qwen3-0.6b\seed42\<arm>\logs\run.log`.
+- Progress bars are forced to ASCII (`TQDM_ASCII`, set in `env.ps1`), so logs written through
+  `Tee-Object` show `|#####|` instead of mojibake like `ΓûêΓûê`.
 - Results: `outputs\qwen3-0.6b\seed42\headline.csv`, `summary.csv`, `curves.png`, `fl_per_client.png`.
 
 ### 1.4 Choose the GPU / use both A5000s

@@ -31,6 +31,13 @@ $env:CUDA_CACHE_PATH  = Join-Path $Cache "nv-compute"       # NVIDIA JIT cache (
 $env:PYTHONUTF8       = "1"        # UTF-8 everywhere regardless of the console code page
 $env:PYTHONIOENCODING = "utf-8"
 $env:PYTHONWARNINGS   = "ignore"
+# Progress bars (tqdm / transformers / huggingface_hub) in pure ASCII: the default Unicode blocks
+# are UTF-8 and turn into mojibake (e.g. "Gamma-u-e" garbage) when read with the console code page
+# (Tee-Object, OEM 437).
+$env:TQDM_ASCII       = " 123456789#"
+# Decode child-process output as UTF-8 in sessions that dot-source this file.
+try { [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false) } catch { }
+$OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 
 $Py = Join-Path $Root ".venv\Scripts\python.exe"
 $Uv = Join-Path $env:UV_UNMANAGED_INSTALL "uv.exe"
