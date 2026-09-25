@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import re
 from pathlib import Path
 
 from omegaconf import DictConfig, OmegaConf
@@ -15,7 +17,9 @@ CONFIG_DIR = ROOT / "configs"
 ARMS = ("centralized_icl", "centralized_non_icl", "federated_icl", "federated_non_icl")
 
 # Keys that change bookkeeping only, never results -> excluded from config_hash.
-_HASH_EXCLUDE = {("save", "overwrite"), ("eval", "batch_size"), ("eval", "gen_batch_size")}
+# runtime.gpu is excluded so an arm can resume on the other (identical) GPU.
+_HASH_EXCLUDE = {("save", "overwrite"), ("eval", "batch_size"), ("eval", "gen_batch_size"),
+                 ("runtime", "gpu")}
 
 
 def load_config(arm: str | None = None, extra: list[str] | None = None,
@@ -90,4 +94,41 @@ def add_config_args(p: argparse.ArgumentParser, with_arm: bool = True) -> None:
 
 
 def config_from_args(args: argparse.Namespace) -> DictConfig:
-    return load_config(getattr(args, "arm", None), args.config, args.overrides)
+    cfg = load_config(getattr(args, "arm", None), args.config, args.overrides)
+    select_gpu(cfg)
+    return cfg
+
+
+def requested_gpu(cfg: DictConfig) -> str | None:
+    """GPU id(s) to use: env FEDICL_GPU overrides runtime.gpu. None/'all' = leave visibility as is."""
+    gpu = os.environ.get("FEDICL_GPU")
+    if gpu is None:
+        gpu = cfg.get("runtime", {}).get("gpu")
+    if gpu is None or str(gpu).strip().lower() in ("", "none", "null", "all"):
+        return None
+    ids = str(gpu).replace(" ", "")
+    if not re.fullmatch(r"\d+(,\d+)*", ids):
+        raise SystemExit(f"invalid GPU selection {gpu!r}: use an index like 0 or 1 (see nvidia-smi)")
+    return ids
+
+
+def select_gpu(cfg: DictConfig) -> None:
+    """Pin the process to the requested GPU. Must run before CUDA initializes (it does: every CLI
+    calls config_from_args first). PCI_BUS_ID order makes index N the same GPU as in nvidia-smi."""
+    ids = requested_gpu(cfg)
+    if ids is None:
+        return
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"] = ids
+
+
+def require_gpu(cfg: DictConfig) -> None:
+    """Fail loudly instead of silently training on CPU when the requested GPU is not visible."""
+    ids = requested_gpu(cfg)
+    if ids is None:
+        return
+    import torch
+
+    if not torch.cuda.is_available():
+        raise SystemExit(f"GPU {ids} requested (runtime.gpu / FEDICL_GPU) but CUDA sees no device: "
+                         "check the index with nvidia-smi and the NVIDIA driver")

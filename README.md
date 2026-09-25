@@ -2,7 +2,7 @@
 
 Implementation of `prompt-fedicl-medqa.md` (the spec). Section numbers below (§) refer to it.
 
-## 1. Windows Server (1x RTX A5000, 24 GB)
+## 1. Windows Server (1-2x RTX A5000, 24 GB each)
 
 Everything stays inside the cloned folder (put it on a non-system drive, close to the root):
 `uv.exe` (`.uv-bin\`), uv package cache (`.uv-cache\`), the Python 3.12 that uv downloads
@@ -62,7 +62,40 @@ pwsh -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 *>&1 | Tee-Object
   resumes from its last saved epoch/round. Per-arm logs: `outputs\qwen3-0.6b\seed42\<arm>\logs\run.log`.
 - Results: `outputs\qwen3-0.6b\seed42\headline.csv`, `summary.csv`, `curves.png`, `fl_per_client.png`.
 
-### 1.4 Single commands (Windows)
+### 1.4 Choose the GPU / use both A5000s
+
+The GPU index is the one shown by `nvidia-smi` (0 or 1). Default: `runtime.gpu: 0` in
+`configs/base.yaml`. Override per session with `FEDICL_GPU` (or per command with `runtime.gpu=1`).
+Changing the GPU does not change `config_hash`, so an arm can resume on the other GPU.
+
+```powershell
+$env:FEDICL_GPU = "1"
+pwsh -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 *>&1 | Tee-Object run_all.log
+```
+
+**Both GPUs in parallel** (~2x faster). Prepare the data once, then open two PowerShell windows;
+each runs one centralized/federated pair (one cheap non-ICL + one heavy ICL arm per GPU):
+
+```powershell
+# once, before starting the two windows
+cd D:\phungthan\fedicl-medqa-v3
+pwsh -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1
+
+# window 1 (GPU 0)
+cd D:\phungthan\fedicl-medqa-v3
+$env:FEDICL_GPU = "0"; $env:FEDICL_ARMS = "centralized_non_icl,centralized_icl"
+pwsh -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 *>&1 | Tee-Object run_gpu0.log
+
+# window 2 (GPU 1)
+cd D:\phungthan\fedicl-medqa-v3
+$env:FEDICL_GPU = "1"; $env:FEDICL_ARMS = "federated_non_icl,federated_icl"
+pwsh -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 *>&1 | Tee-Object run_gpu1.log
+```
+Each window runs `summarize` when it finishes; the one that finishes last produces the complete
+`headline.csv` (or run `Invoke-Py -m fedicl.summarize` afterwards). Never run the same arm on
+both GPUs at once.
+
+### 1.5 Single commands (Windows)
 
 Load the environment once per PowerShell session (keeps caches in the repo, scans the token),
 then use `Invoke-Py` instead of `python`:
@@ -75,6 +108,7 @@ cd D:\phungthan\fedicl-medqa-v3
 | Goal | Command |
 |------|---------|
 | Run one arm | `Invoke-Py -m fedicl.run --arm federated_icl` |
+| Run one arm on GPU 1 | `Invoke-Py -m fedicl.run --arm federated_icl runtime.gpu=1` |
 | Ablation (override any key of `configs/base.yaml`) | `Invoke-Py -m fedicl.run --arm centralized_icl retrieval.strategy=semantic loss.icl.weight=0` |
 | Continue a run that hit the budget while still improving | `Invoke-Py -m fedicl.run --arm centralized_icl --extend_to 5` |
 | Rerun an arm from scratch (old run archived) | `Invoke-Py -m fedicl.run --arm centralized_icl --overwrite` |
@@ -91,7 +125,7 @@ bash scripts/setup_env.sh          # .venv with torch 2.6 (CUDA 12.4) + the pinn
 source .venv/bin/activate
 ```
 
-## 2. Run (Linux; Windows: see 1.3 / 1.4)
+## 2. Run (Linux; Windows: see 1.3 / 1.5)
 
 ```bash
 # 0) optional, ~10 min: whole pipeline on 120/24/24 questions -> processed_data_smoke/, outputs_smoke/
@@ -113,7 +147,7 @@ python -m fedicl.run --arm centralized_icl retrieval.strategy=semantic loss.icl.
 An override that changes results changes `config_hash`; an existing arm then refuses to resume
 (use `--overwrite`, which archives the old run to `_archive/`, never deletes it).
 
-## 3. Re-use results (§5.3, Linux; Windows: see 1.4)
+## 3. Re-use results (§5.3, Linux; Windows: see 1.5)
 
 | Goal | Command |
 |------|---------|

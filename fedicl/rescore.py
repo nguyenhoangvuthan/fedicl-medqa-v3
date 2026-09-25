@@ -10,7 +10,7 @@ import logging
 
 from omegaconf import OmegaConf
 
-from .config import add_config_args, arm_dir, config_from_args
+from .config import add_config_args, arm_dir, config_from_args, require_gpu
 from .evaluate import metrics_from_predictions
 from .matching import Matcher
 from .data.io import LETTERS
@@ -25,6 +25,7 @@ def main() -> None:
     add_config_args(p)
     args = p.parse_args()
     cfg = config_from_args(args)
+    require_gpu(cfg)
     setup_logging()
     out = arm_dir(cfg)
     ex, _ = load_examples(cfg)

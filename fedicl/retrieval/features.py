@@ -13,7 +13,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from ..config import add_config_args, centralized_dir, config_from_args, features_dir
+from ..config import add_config_args, centralized_dir, config_from_args, features_dir, require_gpu
 from ..data.io import SPLITS, load_split
 from ..utils import save_numpy, setup_logging, write_csv_df, write_json, write_jsonl
 from .encoders import TextEncoder
@@ -38,6 +38,7 @@ def main() -> None:
     p.add_argument("--overwrite", action="store_true")
     args = p.parse_args()
     cfg = config_from_args(args)
+    require_gpu(cfg)
     setup_logging()
     r = cfg.retrieval
     out = features_dir(cfg)

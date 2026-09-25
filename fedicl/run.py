@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import logging
+import os
 import shutil
 import subprocess
 import sys
@@ -19,8 +20,8 @@ import pandas as pd
 from omegaconf import OmegaConf
 
 from .config import (ROOT, add_config_args, arm_dir, arm_name, centralized_dir, config_from_args,
-                     config_hash, partition_dir)
-from .utils import read_json, setup_logging, sha1_file, write_csv_df, write_json, write_text
+                     config_hash, partition_dir, require_gpu)
+from .utils import file_lock, read_json, setup_logging, sha1_file, write_csv_df, write_json, write_text
 
 LOG = logging.getLogger("fedicl.run")
 
@@ -53,6 +54,11 @@ def _demo_files(cfg) -> dict:
 
 def update_runs_index(cfg, out: Path, meta: dict, result: dict | None) -> None:
     path = out.parent / "runs_index.csv"
+    with file_lock(path):  # two GPUs may update it at the same time
+        _update_runs_index(path, cfg, out, meta, result)
+
+
+def _update_runs_index(path: Path, cfg, out: Path, meta: dict, result: dict | None) -> None:
     df = pd.read_csv(path) if path.exists() else pd.DataFrame()
     row = {"arm": arm_name(cfg), "status": meta["status"], "path": str(out.relative_to(ROOT)),
            "best_at": (result or {}).get("best_at"), "best_test_acc": (result or {}).get("best_test_acc"),
@@ -73,6 +79,7 @@ def main() -> None:
     if not args.arm:
         p.error("--arm is required")
     cfg = config_from_args(args)
+    require_gpu(cfg)
     out = arm_dir(cfg)
     chash = config_hash(cfg)
     meta_path = out / "run_meta.json"
@@ -101,6 +108,7 @@ def main() -> None:
     meta = read_json(meta_path) if meta_path.exists() else {"started_at": dt.datetime.now().isoformat(timespec="seconds")}
     meta.update({"arm": arm_name(cfg), "status": "running", "config_hash": chash, "seed": int(cfg.seed),
                  "git_commit": _git_commit(), "versions": _versions(), "gpu": gpu_name(),
+                 "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES"),
                  "eval_match": OmegaConf.to_container(cfg.eval.match), "demo_assignment_sha1": _demo_files(cfg),
                  "extend_to": args.extend_to, "finished_at": None})
     write_json(meta_path, meta)

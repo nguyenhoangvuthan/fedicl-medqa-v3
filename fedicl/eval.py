@@ -12,7 +12,7 @@ import logging
 
 import torch
 
-from .config import add_config_args, arm_dir, config_from_args
+from .config import add_config_args, arm_dir, config_from_args, require_gpu
 from .evaluate import Evaluator
 from .matching import Matcher
 from .modeling import load_adapter_state, load_lora_model, load_tokenizer, set_adapter_state
@@ -42,6 +42,7 @@ def main() -> None:
     g.add_argument("--adapter_path")
     args = p.parse_args()
     cfg = config_from_args(args)
+    require_gpu(cfg)
     out = arm_dir(cfg)
     setup_logging(out / "logs" / "eval.log")
     adir = adapter_dir_for(out, args.checkpoint) if args.checkpoint else args.adapter_path

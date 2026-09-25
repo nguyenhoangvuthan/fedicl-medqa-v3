@@ -100,6 +100,7 @@ federated:
   early_stopping: {enabled: true, monitor: val_loss, mode: min, patience: 1, min_delta: 0.001, restore_best: true}
 
 runtime:
+  gpu: 0                               # GPU index as in nvidia-smi (0 or 1 on a 2x A5000 box); env FEDICL_GPU overrides; null = all visible
   deterministic: true                  # deterministic CUDA kernels: same seed => same numbers (small slowdown)
 
 save:

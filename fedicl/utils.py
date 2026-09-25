@@ -1,6 +1,7 @@
 """Small shared helpers: seeding, deterministic per-item RNG, atomic file IO, logging."""
 from __future__ import annotations
 
+import contextlib
 import csv
 import hashlib
 import io
@@ -129,6 +130,34 @@ def rmtree(path: str | Path) -> None:
     if Path(path).exists():
         kw = {"onexc": _onerror} if sys.version_info >= (3, 12) else {"onerror": _onerror}
         _retry(lambda: shutil.rmtree(path, **kw))
+
+
+@contextlib.contextmanager
+def file_lock(path: str | Path, timeout: float = 120.0, stale_after: float = 300.0):
+    """Cross-process lock (Windows + Linux) via an O_EXCL lock file, for read-modify-write of a
+    file shared by runs on different GPUs (runs_index.csv)."""
+    lock = Path(str(path) + ".lock")
+    lock.parent.mkdir(parents=True, exist_ok=True)
+    deadline = time.time() + timeout
+    while True:
+        try:
+            fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.close(fd)
+            break
+        except FileExistsError:
+            try:
+                if time.time() - lock.stat().st_mtime > stale_after:  # holder crashed
+                    lock.unlink(missing_ok=True)
+                    continue
+            except FileNotFoundError:
+                continue
+            if time.time() > deadline:
+                raise TimeoutError(f"could not acquire {lock}")
+            time.sleep(0.2)
+    try:
+        yield
+    finally:
+        lock.unlink(missing_ok=True)
 
 
 def write_text(path: str | Path, text: str) -> None:
