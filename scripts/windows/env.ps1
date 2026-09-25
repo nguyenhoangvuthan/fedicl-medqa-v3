@@ -48,44 +48,57 @@ function Invoke-Checked {
     }
 }
 
-# --- Hugging Face token: <repo>\HF_Access_Token (or HF_Access_Token.txt) ---------------------
+# --- Hugging Face token ---------------------------------------------------------------------
+# Default: <repo>\HF_Access_Token or <repo>\HF_Access_Token.txt (Notepad often adds .txt).
+# Override with an absolute path:  $env:FEDICL_HF_TOKEN_FILE = "D:\secrets\HF_Access_Token.txt"
 # Scanned before every run, then exported as HF_TOKEN for THIS process tree only.
 # The token itself is never printed, logged, or passed on a command line.
-$HfTokenNames = @("HF_Access_Token", "HF_Access_Token.txt")   # Notepad often adds .txt
+$HfTokenNames = @("HF_Access_Token", "HF_Access_Token.txt")
 
 function Test-HfToken {
     if ($env:FEDICL_HF_SCANNED -eq "1") { return }      # scan once per session (set only on success)
 
-    $found = @($HfTokenNames | Where-Object { Test-Path (Join-Path $Root $_) })
-    if ($found.Count -eq 0) {
-        Write-Host "[HF token] scanning $Root for $($HfTokenNames -join ' / ')"
-        Write-Warning "[HF token] file not found: downloads run anonymously (slower, rate-limited)."
-        $env:FEDICL_HF_SCANNED = "1"
-        return
+    if ($env:FEDICL_HF_TOKEN_FILE) {
+        if (-not (Test-Path -LiteralPath $env:FEDICL_HF_TOKEN_FILE -PathType Leaf)) {
+            throw "[HF token] FEDICL_HF_TOKEN_FILE points to a missing file: $($env:FEDICL_HF_TOKEN_FILE)"
+        }
+        $HfTokenFile = (Resolve-Path -LiteralPath $env:FEDICL_HF_TOKEN_FILE).Path
+    } else {
+        $found = @($HfTokenNames | Where-Object { Test-Path (Join-Path $Root $_) })
+        if ($found.Count -eq 0) {
+            Write-Host "[HF token] scanning $Root for $($HfTokenNames -join ' / ')"
+            Write-Warning "[HF token] file not found: downloads run anonymously (slower, rate-limited)."
+            $env:FEDICL_HF_SCANNED = "1"
+            return
+        }
+        if ($found.Count -gt 1) {
+            throw "[HF token] both HF_Access_Token and HF_Access_Token.txt exist: keep only one."
+        }
+        $HfTokenFile = Join-Path $Root $found[0]
     }
-    if ($found.Count -gt 1) {
-        throw "[HF token] both HF_Access_Token and HF_Access_Token.txt exist: keep only one."
-    }
-    $name = $found[0]
-    $HfTokenFile = Join-Path $Root $name
+    $name = Split-Path -Leaf $HfTokenFile
     Write-Host "[HF token] scanning $HfTokenFile"
 
-    # 1) Must never be committed.
-    $gitignore = Join-Path $Root ".gitignore"
-    $pattern = '^' + [regex]::Escape($name) + '$'
-    if (-not ((Test-Path $gitignore) -and (Select-String -LiteralPath $gitignore -Pattern $pattern -Quiet))) {
-        throw "[HF token] add a line '$name' to .gitignore before using the token."
-    }
-    if ((Test-Path (Join-Path $Root ".git")) -and (Get-Command git -ErrorAction SilentlyContinue)) {
-        # "ls-files -- <name>" prints the name only if tracked and writes nothing to stderr.
-        # (Windows PowerShell 5.1 turns ANY native stderr line into a terminating error under
-        # ErrorActionPreference=Stop, even with 2>$null, so avoid stderr and relax it locally.)
-        $eap = $ErrorActionPreference
-        $ErrorActionPreference = "Continue"
-        $tracked = & git -C $Root ls-files -- $name 2>$null
-        $ErrorActionPreference = $eap
-        if ($tracked) {
-            throw "[HF token] $name is tracked by git. Run: git rm --cached $name, then revoke the token on huggingface.co (it is in git history)."
+    # 1) Must never be committed (only relevant when the file lives inside the repo).
+    $rootPrefix = $Root.TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar
+    if ($HfTokenFile.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+        $rel = $HfTokenFile.Substring($rootPrefix.Length) -replace '\\', '/'
+        $gitignore = Join-Path $Root ".gitignore"
+        $pattern = '^/?' + [regex]::Escape($rel) + '$'
+        if (-not ((Test-Path $gitignore) -and (Select-String -LiteralPath $gitignore -Pattern $pattern -Quiet))) {
+            throw "[HF token] add a line '$rel' to .gitignore before using the token."
+        }
+        if ((Test-Path (Join-Path $Root ".git")) -and (Get-Command git -ErrorAction SilentlyContinue)) {
+            # "ls-files -- <path>" prints the path only if tracked and writes nothing to stderr.
+            # (Windows PowerShell 5.1 turns ANY native stderr line into a terminating error under
+            # ErrorActionPreference=Stop, even with 2>$null, so avoid stderr and relax it locally.)
+            $eap = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            $tracked = & git -C $Root ls-files -- $rel 2>$null
+            $ErrorActionPreference = $eap
+            if ($tracked) {
+                throw "[HF token] $rel is tracked by git. Run: git rm --cached $rel, then revoke the token on huggingface.co (it is in git history)."
+            }
         }
     }
 

@@ -24,7 +24,9 @@ git pull                                                                        
 ### 1.2 Hugging Face token (optional)
 
 Put a **read** token (https://huggingface.co/settings/tokens) in `HF_Access_Token.txt` (or
-`HF_Access_Token`) at the repo root, one line `hf_...`. Every script scans it first:
+`HF_Access_Token`) at the repo root, one line `hf_...`. To use a file at another absolute path,
+set it before running (same session): `$env:FEDICL_HF_TOKEN_FILE = "D:\\secrets\\HF_Access_Token.txt"`.
+Every script scans it first:
 
 | Check | If it fails |
 |-------|-------------|
