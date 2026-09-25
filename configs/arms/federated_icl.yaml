@@ -1,0 +1,3 @@
+setting: federated
+icl:
+  enabled: true

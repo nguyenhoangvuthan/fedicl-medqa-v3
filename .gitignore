@@ -1,0 +1,22 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+processed_data/
+processed_data_smoke/
+outputs/
+outputs_smoke/
+run_all.log
+*.tmp
+.remember/
+.uv-bin/
+.uv-cache/
+.uv-python/
+.hf-cache/
+.tmp/
+.cache/
+HF_Access_Token
+
+# unpublished paper material: keep local
+1-FedICL-MQA-Overview of the proposed method-Jun7.png
+2-[[]outline]-FedICL-MQA-A Federated ICL Framework using SLMs for MQA.pdf

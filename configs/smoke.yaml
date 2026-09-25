@@ -1,0 +1,28 @@
+# Tiny end-to-end run to validate the pipeline on a small GPU before the real A5000 run.
+# Usage: bash scripts/smoke_test.sh
+data:
+  root: processed_data_smoke
+data_prep:
+  iid_k: [3]
+  noniid_alphas: [0.5]
+  noniid_k: [3]
+  min_client_size: 5
+  max_samples_per_split: {train: 120, validation: 24, test: 24}
+model:
+  max_seq_len: 1536
+retrieval:
+  candidate_top_n: 20
+train:
+  epochs: 1
+  batch_size: 2
+  grad_accum: 2
+  early_stopping:
+    eval_every: 0.5
+federated:
+  rounds: 2
+eval:
+  batch_size: 4
+  gen_batch_size: 8
+  generation: {max_new_tokens: 24}
+save:
+  root: outputs_smoke/${model.short_name}/seed${seed}

@@ -1,0 +1,11 @@
+- 1 bộ dataset: MedQA
+- chạy trên 2 model có size nhỏ nhất
+- Centralize vs Federated Learning
+    + Centralize: ICL vs non-ICL (train sao eval vậy) ICL-k=3
+    + Federated Learning: ICL vs non-ICL
+    + Lưu adapter và result.csv eval từ 1 đến 5 epoch
+- Federated Learning: alpha=0.5. k(client)=3
+- Generate lại structure data.
+- Centralize data như thế nào?
+- Federated Learning data như thế nào?
+- Param store .yaml để dynamic

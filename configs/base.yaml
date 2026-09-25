@@ -1,0 +1,109 @@
+# FedICL-MQA base config (tuned for 1x NVIDIA RTX A5000, 24 GB). Arms override setting/icl only.
+seed: 42
+
+model:
+  name: Qwen/Qwen3-0.6B
+  short_name: qwen3-0.6b
+  max_seq_len: 2048
+  enable_thinking: false
+  end_of_turn_token: "<|im_end|>"       # Qwen chat end-of-turn = EOS of the answer
+  dtype: bfloat16                       # A5000 (Ampere) supports bf16
+  attn_implementation: sdpa
+  gradient_checkpointing: true          # L_ICL needs 2 forward passes on ~1.3k-token prompts
+
+data:
+  root: processed_data
+  dataset: MedQA
+  dir: ${data.root}/${data.dataset}
+  centralized_dir: ${data.dir}/centralized
+  hf_source: GBaker/MedQA-USMLE-4-options-hf     # official train/validation/test = 10178/1272/1273
+  hf_meta_source: GBaker/MedQA-USMLE-4-options   # has meta_info (step1 / step2&3) for train/test
+
+data_prep:
+  partition_seed: 42
+  label_key: answer
+  iid_k: [2, 3, 4, 5]
+  noniid_alphas: [0.5, 0.1]
+  noniid_k: [2, 3, 4, 5]
+  min_client_size: 10                   # Dirichlet resamples until every client has >= this many
+  max_samples_per_split: null           # smoke test only: {train: 120, validation: 24, test: 24}
+
+setting: federated                      # centralized | federated (set by configs/arms/*.yaml)
+
+prompt:
+  system: "You are a helpful medical assistant. Answer the question by writing the full text of the correct option."
+  option_style: bullet
+  shuffle_options: true
+  most_relevant_last: true              # the best demo sits right before the target question
+
+icl:
+  enabled: true
+  k_shot: 3
+  dedup_key: q_hash
+  fl_eval_pool: local
+
+retrieval:
+  strategy: adaptive                    # random | semantic | semantic_clinical | adaptive
+  question_encoder: {name: NeuML/pubmedbert-base-embeddings, pooling: mean, max_length: 512, fields: [question]}
+  entity_extractor: en_core_sci_sm
+  entity_encoder: {name: cambridgeltl/SapBERT-from-PubMedBERT-fulltext, pooling: cls, max_length: 25}
+  weights: {semantic: 0.7, clinical: 0.3}
+  candidate_top_n: 50
+  mmr_lambda: 0.7
+  near_dup_threshold: 0.95
+  encode_batch_size: 64
+
+loss:
+  qa: {weight: 1.0}
+  icl: {weight: 0.5, variant: demo_consistency}   # demo_consistency | context_distill; ICL arms only
+  reg: {mu: 0.01, type: fedprox}                  # FL arms only
+
+eval:
+  generation: {do_sample: false, max_new_tokens: 64, stop_at_newline: true}
+  match:
+    lexical: token_f1
+    semantic_encoder: {name: cambridgeltl/SapBERT-from-PubMedBERT-fulltext, pooling: cls, max_length: 64}
+    weights: {lexical: 0.5, semantic: 0.5}
+    low_conf: {min_score: 0.5, min_margin: 0.05}
+  fl_global_pool_diagnostic: false
+  accuracy_on_checks: true              # also generate + score validation at every early-stopping check
+  batch_size: 16                        # val_loss forward batch
+  gen_batch_size: 16                    # generation batch (left-padded)
+
+lora: {r: 16, alpha: 32, dropout: 0.05, target_modules: [q_proj, k_proj, v_proj, o_proj]}
+
+train:
+  epochs: 3
+  max_extend: 5
+  lr: 2.0e-4
+  warmup_ratio: 0.03
+  min_lr_ratio: 0.1
+  weight_decay: 0.0
+  max_grad_norm: 1.0
+  batch_size: 4
+  grad_accum: 4
+  early_stopping:
+    enabled: true
+    monitor: val_loss
+    mode: min
+    eval_every: 0.25
+    patience: 2
+    min_delta: 0.001
+    restore_best: true
+
+federated:
+  num_clients: 3
+  partition: {type: noniid, alpha: 0.5}
+  rounds: 3
+  local_epochs: 1
+  aggregation: fedavg
+  early_stopping: {enabled: true, monitor: val_loss, mode: min, patience: 1, min_delta: 0.001, restore_best: true}
+
+runtime:
+  deterministic: true                  # deterministic CUDA kernels: same seed => same numbers (small slowdown)
+
+save:
+  root: outputs/${model.short_name}/seed${seed}
+  save_client_adapters: true
+  keep_last_k_states: 2
+  overwrite: false
