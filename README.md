@@ -21,8 +21,9 @@ powershell -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 *>&1 | Tee-
 - **Hugging Face token (optional, avoids anonymous rate limits):** put a *read* token in a file
   named `HF_Access_Token` (or `HF_Access_Token.txt`) at the repo root (one line: `hf_...`, or `HF_TOKEN=hf_...`). Every
   script scans it first: it must be git-ignored and not tracked, contain exactly one well-formed
-  token, and be accepted by `huggingface.co/api/whoami-v2`. Otherwise the script stops before
-  running anything. The token is exported as `HF_TOKEN` for that process only and is never printed.
+  token (otherwise the script stops before running anything). If `huggingface.co/api/whoami-v2`
+  rejects it (401), the script warns and continues anonymously without exporting the bad token
+  (all models/datasets here are public). The token is exported as `HF_TOKEN` for that process only and is never printed.
 - Needs an NVIDIA driver with CUDA 12.4 support (>= 550); for an older driver use
   `setup_env.ps1 -Cuda cu118`.
 - If `setup_env.ps1` warns about long paths, enable them once (Administrator PowerShell):

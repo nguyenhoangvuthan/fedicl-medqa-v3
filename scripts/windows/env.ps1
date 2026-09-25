@@ -114,7 +114,16 @@ function Test-HfToken {
     } catch {
         $code = $null
         try { $code = [int]$_.Exception.Response.StatusCode } catch { }
-        if ($code -eq 401) { throw "[HF token] rejected by huggingface.co (401): token invalid, expired or revoked." }
+        if ($code -eq 401) {
+            # Do NOT export a rejected token: huggingface_hub would send it and even public downloads
+            # would fail. All models/datasets of this project are public, so continue anonymously.
+            Write-Warning "[HF token] rejected by huggingface.co (401): invalid, expired, revoked or incompletely copied."
+            Write-Warning "[HF token] token in $name has $($token.Length) chars (a classic HF token is 37: 'hf_' + 34). Create a new READ token at https://huggingface.co/settings/tokens and paste it again."
+            Write-Warning "[HF token] continuing WITHOUT a token (anonymous downloads, rate-limited)."
+            Remove-Variable token
+            $env:FEDICL_HF_SCANNED = "1"
+            return
+        }
         Write-Warning "[HF token] could not verify online (network?): continuing with the token as-is."
     }
 
