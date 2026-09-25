@@ -4,36 +4,83 @@ Implementation of `prompt-fedicl-medqa.md` (the spec). Section numbers below (§
 
 ## 1. Windows Server (1x RTX A5000, 24 GB)
 
-Clone to a non-system drive, close to the root (e.g. `D:\fedicl-medqa`). Everything is kept
-inside that folder: `uv.exe` (`.uv-bin\`), the uv package cache (`.uv-cache\`), the Python 3.12
-that uv downloads (`.uv-python\`), `.venv\`, Hugging Face models + MedQA (`.hf-cache\`, ~3 GB)
-temp files (`.tmp\`) and small library caches (`.cache\`: matplotlib, torch hub, NVIDIA JIT).
-Nothing is written under `C:\Users\...` as long as commands run through `scripts\windows\*.ps1`
-or a session that dot-sourced `scripts\windows\env.ps1`.
+Everything stays inside the cloned folder (put it on a non-system drive, close to the root):
+`uv.exe` (`.uv-bin\`), uv package cache (`.uv-cache\`), the Python 3.12 that uv downloads
+(`.uv-python\`), `.venv\`, Hugging Face models + MedQA (`.hf-cache\`, ~3 GB), temp files
+(`.tmp\`) and small library caches (`.cache\`). Nothing is written under `C:\Users\...` as long
+as commands go through `scripts\windows\*.ps1` or a session that dot-sourced `env.ps1`.
+
+Commands below use PowerShell 7 (`pwsh`). Windows PowerShell 5.1 works too: replace `pwsh`
+with `powershell`. Always run them **from the repo root**.
+
+### 1.1 Get / update the code
 
 ```powershell
-cd D:\fedicl-medqa
-powershell -ExecutionPolicy Bypass -File scripts\windows\setup_env.ps1     # once (~6 GB download)
-powershell -ExecutionPolicy Bypass -File scripts\windows\smoke_test.ps1    # optional, ~10 min
-powershell -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1
-powershell -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 *>&1 | Tee-Object run_all.log
+git clone git@github.com:nguyenhoangvuthan/fedicl-medqa-v3.git D:\phungthan\fedicl-medqa-v3   # first time
+cd D:\phungthan\fedicl-medqa-v3
+git pull                                                                                   # later updates
 ```
-- **Hugging Face token (optional, avoids anonymous rate limits):** put a *read* token in a file
-  named `HF_Access_Token` (or `HF_Access_Token.txt`) at the repo root (one line: `hf_...`, or `HF_TOKEN=hf_...`). Every
-  script scans it first: it must be git-ignored and not tracked, contain exactly one well-formed
-  token (otherwise the script stops before running anything). If `huggingface.co/api/whoami-v2`
-  rejects it (401), the script warns and continues anonymously without exporting the bad token
-  (all models/datasets here are public). The token is exported as `HF_TOKEN` for that process only and is never printed.
-- Needs an NVIDIA driver with CUDA 12.4 support (>= 550); for an older driver use
-  `setup_env.ps1 -Cuda cu118`.
-- If `setup_env.ps1` warns about long paths, enable them once (Administrator PowerShell):
-  `New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name LongPathsEnabled -Value 1 -PropertyType DWORD -Force`.
-- The run takes hours: disconnecting from Remote Desktop is fine, **signing out kills it**.
-  If it is interrupted, run the same `run_all.ps1` again: completed arms are skipped, the
-  interrupted one resumes from its last saved epoch/round.
-- To run single commands by hand, first load the environment in that PowerShell session so the
-  caches stay in the repo: `. .\scripts\windows\env.ps1`, then e.g.
-  `Invoke-Py -m fedicl.run --arm federated_icl` or `Invoke-Py -m fedicl.summarize`.
+
+### 1.2 Hugging Face token (optional)
+
+Put a **read** token (https://huggingface.co/settings/tokens) in `HF_Access_Token.txt` (or
+`HF_Access_Token`) at the repo root, one line `hf_...`. Every script scans it first:
+
+| Check | If it fails |
+|-------|-------------|
+| file is git-ignored and not tracked | stop |
+| exactly one line, `hf_` + letters/digits | stop, nothing is sent |
+| accepted by `huggingface.co/api/whoami-v2` | 401: warn (shows token length) and continue anonymously |
+
+The token is exported as `HF_TOKEN` for that process only and never printed. All models and
+datasets used here are public, so a missing or rejected token only means slower downloads.
+
+Check a token by hand without printing it:
+
+```powershell
+$t = (Get-Content .\HF_Access_Token.txt -Raw).Trim(); "length: $($t.Length)"; try { "user: " + (Invoke-RestMethod https://huggingface.co/api/whoami-v2 -Headers @{Authorization = "Bearer $t"}).name } catch { $_.Exception.Message }; Remove-Variable t
+```
+
+### 1.3 Install, then run
+
+```powershell
+cd D:\phungthan\fedicl-medqa-v3
+pwsh -ExecutionPolicy Bypass -File scripts\windows\setup_env.ps1      # once, ~6 GB download
+pwsh -ExecutionPolicy Bypass -File scripts\windows\smoke_test.ps1     # optional, ~10 min, tiny subset
+pwsh -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1   # MedQA -> partitions -> demos
+pwsh -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 *>&1 | Tee-Object run_all.log
+```
+
+- NVIDIA driver must support CUDA 12.4 (>= 550). Older driver:
+  `pwsh -ExecutionPolicy Bypass -File scripts\windows\setup_env.ps1 -Cuda cu118`.
+- If `setup_env.ps1` warns about long paths, enable them once in an **Administrator** PowerShell:
+  `New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name LongPathsEnabled -Value 1 -PropertyType DWORD -Force`
+- `run_all.ps1` takes hours. Disconnecting Remote Desktop is fine, **signing out kills it**.
+  If it stops, run the same command again: completed arms are skipped, the interrupted one
+  resumes from its last saved epoch/round. Per-arm logs: `outputs\qwen3-0.6b\seed42\<arm>\logs\run.log`.
+- Results: `outputs\qwen3-0.6b\seed42\headline.csv`, `summary.csv`, `curves.png`, `fl_per_client.png`.
+
+### 1.4 Single commands (Windows)
+
+Load the environment once per PowerShell session (keeps caches in the repo, scans the token),
+then use `Invoke-Py` instead of `python`:
+
+```powershell
+cd D:\phungthan\fedicl-medqa-v3
+. .\scripts\windows\env.ps1
+```
+
+| Goal | Command |
+|------|---------|
+| Run one arm | `Invoke-Py -m fedicl.run --arm federated_icl` |
+| Ablation (override any key of `configs/base.yaml`) | `Invoke-Py -m fedicl.run --arm centralized_icl retrieval.strategy=semantic loss.icl.weight=0` |
+| Continue a run that hit the budget while still improving | `Invoke-Py -m fedicl.run --arm centralized_icl --extend_to 5` |
+| Rerun an arm from scratch (old run archived) | `Invoke-Py -m fedicl.run --arm centralized_icl --overwrite` |
+| Re-evaluate a saved adapter | `Invoke-Py -m fedicl.eval --arm federated_icl --checkpoint round_2` |
+| Re-score saved generations with another matcher config | `Invoke-Py -m fedicl.rescore --arm federated_icl eval.match.weights.semantic=0.3 eval.match.weights.lexical=0.7` |
+| Rebuild summary tables/plots | `Invoke-Py -m fedicl.summarize` |
+| Skip generation at mid-epoch checks (faster) | append `eval.accuracy_on_checks=false` to a `fedicl.run` command |
+| Unit tests | `Invoke-Py -m pytest -q tests` |
 
 ## 1b. Linux
 
@@ -42,7 +89,7 @@ bash scripts/setup_env.sh          # .venv with torch 2.6 (CUDA 12.4) + the pinn
 source .venv/bin/activate
 ```
 
-## 2. Run (Linux; on Windows use the scripts\windows\*.ps1 equivalents above)
+## 2. Run (Linux; Windows: see 1.3 / 1.4)
 
 ```bash
 # 0) optional, ~10 min: whole pipeline on 120/24/24 questions -> processed_data_smoke/, outputs_smoke/
@@ -64,7 +111,7 @@ python -m fedicl.run --arm centralized_icl retrieval.strategy=semantic loss.icl.
 An override that changes results changes `config_hash`; an existing arm then refuses to resume
 (use `--overwrite`, which archives the old run to `_archive/`, never deletes it).
 
-## 3. Re-use results (§5.3)
+## 3. Re-use results (§5.3, Linux; Windows: see 1.4)
 
 | Goal | Command |
 |------|---------|

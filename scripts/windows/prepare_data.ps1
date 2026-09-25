@@ -1,5 +1,5 @@
 # Data pipeline: MedQA -> raw/centralized -> partitions -> features -> demo assignments -> plots.
-#   powershell -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1 [--config configs/smoke.yaml] [overrides...]
+#   pwsh -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1 [--config configs/smoke.yaml] [overrides...]
 . "$PSScriptRoot\env.ps1"
 $Rest = $args
 

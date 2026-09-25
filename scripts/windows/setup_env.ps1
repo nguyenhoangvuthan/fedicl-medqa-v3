@@ -1,5 +1,5 @@
 # Create .venv with the tested stack; uv + every cache live inside the repo folder.
-#   powershell -ExecutionPolicy Bypass -File scripts\windows\setup_env.ps1
+#   pwsh -ExecutionPolicy Bypass -File scripts\windows\setup_env.ps1
 # Optional: -Cuda cu124 (default; needs NVIDIA driver >= 550) or cu118 for older drivers.
 param([string]$Cuda = "cu124")
 . "$PSScriptRoot\env.ps1"

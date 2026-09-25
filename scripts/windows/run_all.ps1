@@ -1,5 +1,5 @@
 # Run the 4 arms (completed arms are skipped, interrupted ones resume), then summarize.
-#   powershell -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 [--config configs/smoke.yaml] [overrides...]
+#   pwsh -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 [--config configs/smoke.yaml] [overrides...]
 . "$PSScriptRoot\env.ps1"
 $Rest = $args
 
