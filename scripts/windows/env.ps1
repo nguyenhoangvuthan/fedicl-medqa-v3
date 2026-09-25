@@ -77,8 +77,14 @@ function Test-HfToken {
         throw "[HF token] add a line '$name' to .gitignore before using the token."
     }
     if ((Test-Path (Join-Path $Root ".git")) -and (Get-Command git -ErrorAction SilentlyContinue)) {
-        & git -C $Root ls-files --error-unmatch $name 2>$null | Out-Null
-        if ($LASTEXITCODE -eq 0) {
+        # "ls-files -- <name>" prints the name only if tracked and writes nothing to stderr.
+        # (Windows PowerShell 5.1 turns ANY native stderr line into a terminating error under
+        # ErrorActionPreference=Stop, even with 2>$null, so avoid stderr and relax it locally.)
+        $eap = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        $tracked = & git -C $Root ls-files -- $name 2>$null
+        $ErrorActionPreference = $eap
+        if ($tracked) {
             throw "[HF token] $name is tracked by git. Run: git rm --cached $name, then revoke the token on huggingface.co (it is in git history)."
         }
     }
