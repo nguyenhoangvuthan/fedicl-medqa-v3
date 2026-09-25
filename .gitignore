@@ -16,6 +16,7 @@ run_all.log
 .tmp/
 .cache/
 HF_Access_Token
+HF_Access_Token.txt
 
 # unpublished paper material: keep local
 1-FedICL-MQA-Overview of the proposed method-Jun7.png

@@ -48,33 +48,38 @@ function Invoke-Checked {
     }
 }
 
-# --- Hugging Face token: <repo>\HF_Access_Token -----------------------------------------------
+# --- Hugging Face token: <repo>\HF_Access_Token (or HF_Access_Token.txt) ---------------------
 # Scanned before every run, then exported as HF_TOKEN for THIS process tree only.
 # The token itself is never printed, logged, or passed on a command line.
-$HfTokenFile = Join-Path $Root "HF_Access_Token"
+$HfTokenNames = @("HF_Access_Token", "HF_Access_Token.txt")   # Notepad often adds .txt
 
 function Test-HfToken {
     if ($env:FEDICL_HF_SCANNED -eq "1") { return }      # scan once per session (set only on success)
-    Write-Host "[HF token] scanning $HfTokenFile"
 
-    if (-not (Test-Path $HfTokenFile) -and (Test-Path "$HfTokenFile.txt")) {
-        throw "[HF token] found HF_Access_Token.txt (Notepad added .txt; Explorer hides extensions). Rename it: Rename-Item HF_Access_Token.txt HF_Access_Token"
-    }
-    if (-not (Test-Path $HfTokenFile)) {
+    $found = @($HfTokenNames | Where-Object { Test-Path (Join-Path $Root $_) })
+    if ($found.Count -eq 0) {
+        Write-Host "[HF token] scanning $Root for $($HfTokenNames -join ' / ')"
         Write-Warning "[HF token] file not found: downloads run anonymously (slower, rate-limited)."
         $env:FEDICL_HF_SCANNED = "1"
         return
     }
+    if ($found.Count -gt 1) {
+        throw "[HF token] both HF_Access_Token and HF_Access_Token.txt exist: keep only one."
+    }
+    $name = $found[0]
+    $HfTokenFile = Join-Path $Root $name
+    Write-Host "[HF token] scanning $HfTokenFile"
 
     # 1) Must never be committed.
     $gitignore = Join-Path $Root ".gitignore"
-    if (-not ((Test-Path $gitignore) -and (Select-String -LiteralPath $gitignore -Pattern '^HF_Access_Token$' -Quiet))) {
-        throw "[HF token] add a line 'HF_Access_Token' to .gitignore before using the token."
+    $pattern = '^' + [regex]::Escape($name) + '$'
+    if (-not ((Test-Path $gitignore) -and (Select-String -LiteralPath $gitignore -Pattern $pattern -Quiet))) {
+        throw "[HF token] add a line '$name' to .gitignore before using the token."
     }
     if ((Test-Path (Join-Path $Root ".git")) -and (Get-Command git -ErrorAction SilentlyContinue)) {
-        & git -C $Root ls-files --error-unmatch "HF_Access_Token" 2>$null | Out-Null
+        & git -C $Root ls-files --error-unmatch $name 2>$null | Out-Null
         if ($LASTEXITCODE -eq 0) {
-            throw "[HF token] HF_Access_Token is tracked by git. Run: git rm --cached HF_Access_Token, then revoke the token on huggingface.co (it is in git history)."
+            throw "[HF token] $name is tracked by git. Run: git rm --cached $name, then revoke the token on huggingface.co (it is in git history)."
         }
     }
 
@@ -82,7 +87,7 @@ function Test-HfToken {
     $lines = @(Get-Content -LiteralPath $HfTokenFile | ForEach-Object { $_.Trim([char]0xFEFF).Trim() } |
                Where-Object { $_ -ne "" -and -not $_.StartsWith("#") })
     if ($lines.Count -ne 1) {
-        throw "[HF token] expected exactly 1 non-comment line in HF_Access_Token, found $($lines.Count)."
+        throw "[HF token] expected exactly 1 non-comment line in $name, found $($lines.Count)."
     }
     $token = $lines[0] -replace '^(HF_TOKEN|HUGGING_FACE_HUB_TOKEN)\s*=\s*', ''
     $token = $token.Trim('"', "'", ' ')

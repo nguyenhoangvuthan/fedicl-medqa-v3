@@ -19,7 +19,7 @@ powershell -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1
 powershell -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 *>&1 | Tee-Object run_all.log
 ```
 - **Hugging Face token (optional, avoids anonymous rate limits):** put a *read* token in a file
-  named `HF_Access_Token` at the repo root (one line: `hf_...`, or `HF_TOKEN=hf_...`). Every
+  named `HF_Access_Token` (or `HF_Access_Token.txt`) at the repo root (one line: `hf_...`, or `HF_TOKEN=hf_...`). Every
   script scans it first: it must be git-ignored and not tracked, contain exactly one well-formed
   token, and be accepted by `huggingface.co/api/whoami-v2`. Otherwise the script stops before
   running anything. The token is exported as `HF_TOKEN` for that process only and is never printed.
