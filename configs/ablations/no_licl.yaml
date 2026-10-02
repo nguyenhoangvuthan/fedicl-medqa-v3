@@ -1,0 +1,7 @@
+# Ablation A: is L_ICL (demo-consistency KL) what kills the ICL gain in FL?
+# Same as the main run except lambda_ICL = 0. Run only federated_icl; compare with the main
+# federated_non_icl (unaffected: non-ICL arms never use L_ICL) and the main federated_icl.
+loss:
+  icl: {weight: 0.0}
+save:
+  root: outputs/ablation_no_licl/${model.short_name}/seed${seed}

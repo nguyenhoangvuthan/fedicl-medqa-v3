@@ -132,3 +132,16 @@ def require_gpu(cfg: DictConfig) -> None:
     if not torch.cuda.is_available():
         raise SystemExit(f"GPU {ids} requested (runtime.gpu / FEDICL_GPU) but CUDA sees no device: "
                          "check the index with nvidia-smi and the NVIDIA driver")
+
+
+def _main() -> None:
+    """python -m fedicl.config --get save.root [--config ...] [overrides...]: print a resolved key."""
+    p = argparse.ArgumentParser(description=_main.__doc__)
+    add_config_args(p)
+    p.add_argument("--get", required=True, help="dotted key, e.g. save.root")
+    args = p.parse_args()
+    print(OmegaConf.select(load_config(args.arm, args.config, args.overrides), args.get))
+
+
+if __name__ == "__main__":
+    _main()

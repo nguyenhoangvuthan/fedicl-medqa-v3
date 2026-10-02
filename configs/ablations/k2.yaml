@@ -1,0 +1,7 @@
+# Ablation B: does a larger local demo repository restore the ICL gain?
+# Same Dirichlet alpha=0.5 partition family, but 2 clients (~5.1k questions each instead of
+# 6040/2798/1340). Run federated_non_icl AND federated_icl (the non-ICL baseline changes too).
+federated:
+  num_clients: 2
+save:
+  root: outputs/ablation_k2/${model.short_name}/seed${seed}
