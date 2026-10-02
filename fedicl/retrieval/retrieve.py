@@ -252,7 +252,15 @@ def main() -> None:
             run_scope(f"{pdir.relative_to(data_dir(cfg))}/client_{i}/{s}", retriever, queries, client,
                       s == "train", pdir / f"demo_assignment_client_{i}_{s}.json", cfg, feats, report)
 
-    write_json(cdir / "demo_check_report.json", report)
+    # Merge with the previous report (e.g. main k3 run + k2 ablation) as long as the retrieval
+    # settings are identical; otherwise the old scopes are stale and are dropped.
+    report_path = cdir / "demo_check_report.json"
+    if report_path.exists():
+        prev = read_json(report_path)
+        keys = ("strategy", "k_shot", "near_dup_threshold", "feature_stats")
+        if all(prev.get(k) == report[k] for k in keys):
+            report["scopes"] = {**prev.get("scopes", {}), **report["scopes"]}
+    write_json(report_path, report)
     LOG.info("all assignment checks passed")
 
 

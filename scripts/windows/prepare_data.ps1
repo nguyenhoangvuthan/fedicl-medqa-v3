@@ -1,6 +1,8 @@
 # Data pipeline: MedQA -> raw/centralized -> partitions -> features -> demo assignments -> plots.
-#   pwsh -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1 [--config configs/smoke.yaml] [overrides...]
+#   pwsh -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1 [-Gpu 0|1] [--config configs/smoke.yaml] [overrides...]
+param([ValidateSet("0", "1")][string]$Gpu = "")   # -Gpu 0 or -Gpu 1 (nvidia-smi index)
 . "$PSScriptRoot\env.ps1"
+Use-Gpu $Gpu
 $Rest = $args
 
 Invoke-Py -m fedicl.data.prepare @Rest

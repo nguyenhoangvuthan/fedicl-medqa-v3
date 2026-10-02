@@ -1,4 +1,4 @@
-# Running FedICL-MQA on Ubuntu 26.04 LTS (1-2x RTX A5000)
+# Running FedICL-MQA on Ubuntu 26.04 LTS (RTX A5000)
 
 Tested on Ubuntu 26.04.1 LTS (kernel 7.0, NVIDIA driver 595). The system Python (3.14) is not
 used: `uv` downloads Python 3.12 into the repo.
@@ -26,7 +26,7 @@ bash scripts/setup_env.sh                  # ~6 GB download; older driver: bash 
 
 ## 2. Hugging Face token (optional)
 
-Put a **read** token (https://huggingface.co/settings/tokens) in `HF_Access_Token` or
+Put a **read** token (<https://huggingface.co/settings/tokens>) in `HF_Access_Token` or
 `HF_Access_Token.txt` at the repo root, one line `hf_...`, and restrict it to your user:
 
 ```bash
@@ -52,19 +52,25 @@ bash scripts/run_all.sh 2>&1 | tee run_all.log
 If a run stops, start the same command again: completed arms are skipped, the interrupted one
 resumes from its last saved epoch/round. Per-arm logs: `outputs/qwen3-0.6b/seed42/<arm>/logs/run.log`.
 
-### Both GPUs in parallel
+### Choose the GPU
+
+Every script runs on GPU 0 unless `FEDICL_GPU` says otherwise (index as in `nvidia-smi`). All 4
+arms run one after the other on that GPU (~18 h on an A5000):
 
 ```bash
-bash scripts/prepare_data.sh                                   # once
-tmux new -s gpu0   # window 1
-FEDICL_GPU=0 FEDICL_ARMS=centralized_non_icl,centralized_icl bash scripts/run_all.sh 2>&1 | tee run_gpu0.log
-tmux new -s gpu1   # window 2
-FEDICL_GPU=1 FEDICL_ARMS=federated_non_icl,federated_icl     bash scripts/run_all.sh 2>&1 | tee run_gpu1.log
+FEDICL_GPU=1 bash scripts/run_all.sh 2>&1 | tee run_all.log
 ```
 
-`FEDICL_GPU` is the index shown by `nvidia-smi`. A GPU that CUDA cannot see stops the run
-instead of silently using the CPU. Changing the GPU does not change `config_hash`, so an arm can
-resume on the other GPU.
+Split into batches (e.g. when the GPU is only free at night); each batch may use another GPU:
+
+```bash
+FEDICL_GPU=0 FEDICL_ARMS=centralized_non_icl,federated_non_icl,centralized_icl bash scripts/run_all.sh 2>&1 | tee run_part1.log   # ~5 h
+FEDICL_GPU=1 FEDICL_ARMS=federated_icl bash scripts/run_all.sh 2>&1 | tee run_part2.log                                          # ~13 h
+```
+
+A GPU that CUDA cannot see stops the run instead of silently using the CPU. Changing the GPU does
+not change `config_hash`, so an interrupted arm can resume on the other GPU. If both GPUs are free
+at the same time, the two batches above can also run in parallel (two tmux windows).
 
 ## 4. Results and verification
 
@@ -79,8 +85,8 @@ python -m fedicl.audit                     # every FL demo comes from the client
 Ablations for the federated ICL gain (own output folders, main results untouched):
 
 ```bash
-tmux new -s ab0;  FEDICL_GPU=0 bash scripts/run_ablation.sh no_licl 2>&1 | tee ablation_no_licl.log   # ~8 h
-tmux new -s ab1;  FEDICL_GPU=1 bash scripts/run_ablation.sh k2      2>&1 | tee ablation_k2.log        # ~15 h
+FEDICL_GPU=0 bash scripts/run_ablation.sh no_licl 2>&1 | tee ablation_no_licl.log   # ~8 h
+FEDICL_GPU=0 bash scripts/run_ablation.sh k2      2>&1 | tee ablation_k2.log        # ~15 h
 ```
 
 ## 5. Single commands

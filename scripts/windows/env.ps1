@@ -152,6 +152,23 @@ function Test-HfToken {
     $env:FEDICL_HF_SCANNED = "1"
 }
 
+function Use-Gpu {
+    # -Gpu 0|1 on the calling script: pin this run (and every child step) to one GPU.
+    $g = $args[0]
+    if ($g -ne $null -and "$g" -ne "") { $env:FEDICL_GPU = "$g" }
+    if ($env:FEDICL_GPU) { Write-Host "[GPU] using GPU $($env:FEDICL_GPU) (nvidia-smi index)" }
+    else { Write-Host "[GPU] using runtime.gpu from configs/base.yaml (default 0)" }
+}
+
+function Invoke-Script {
+    # Run another scripts\windows\*.ps1 exactly like the user does (-File, child process with the
+    # same PowerShell executable). Calling it with "&" instead would bind "--config" POSITIONALLY to
+    # its -Gpu parameter. The child inherits FEDICL_GPU and the token-scan result via env vars.
+    $script = $args[0]
+    $rest = @($args | Select-Object -Skip 1)
+    Invoke-Checked (Get-Process -Id $PID).Path -NoProfile -ExecutionPolicy Bypass -File $script @rest
+}
+
 function Invoke-Py {
     if (-not (Test-Path $Py)) { throw ".venv not found: run scripts\windows\setup_env.ps1 first" }
     Invoke-Checked $Py @args
