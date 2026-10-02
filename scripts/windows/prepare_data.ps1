@@ -8,3 +8,4 @@ Invoke-Py -m fedicl.data.partition @Rest
 Invoke-Py -m fedicl.retrieval.features @Rest
 Invoke-Py -m fedicl.retrieval.retrieve @Rest
 Invoke-Py -m fedicl.visualize @Rest
+Invoke-Py -m fedicl.audit @Rest      # every FL demo must come from the client's own data

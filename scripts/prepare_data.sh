@@ -9,3 +9,4 @@ python -m fedicl.data.partition "$@"
 python -m fedicl.retrieval.features "$@"
 python -m fedicl.retrieval.retrieve "$@"
 python -m fedicl.visualize "$@"
+python -m fedicl.audit "$@"      # every FL demo must come from the client's own data

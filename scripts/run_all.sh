@@ -22,3 +22,4 @@ for arm in "${arms[@]}"; do
   python -m fedicl.run --arm "${arm}" "$@"
 done
 python -m fedicl.summarize "$@"
+python -m fedicl.audit "$@"      # re-check, now including what the FL model was shown at eval

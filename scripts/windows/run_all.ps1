@@ -23,3 +23,4 @@ foreach ($arm in $Arms) {
     Invoke-Py -m fedicl.run --arm $arm @Rest
 }
 Invoke-Py -m fedicl.summarize @Rest
+Invoke-Py -m fedicl.audit @Rest      # re-check, now including what the FL model was shown at eval
