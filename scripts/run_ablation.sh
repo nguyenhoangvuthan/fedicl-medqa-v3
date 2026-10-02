@@ -4,7 +4,8 @@
 #   FEDICL_GPU=1 bash scripts/run_ablation.sh k2
 # Extra args after the name go to every step (e.g. --config configs/smoke.yaml for a dry run).
 set -euo pipefail
-cd "$(dirname "$0")/.."
+source "$(dirname "$0")/env.sh"
+[[ -x .venv/bin/python ]] || { echo "no .venv: run bash scripts/setup_env.sh first" >&2; exit 1; }
 ab="${1:?usage: run_ablation.sh no_licl|k2 [extra args]}"; shift
 [[ "${ab}" == no_licl || "${ab}" == k2 ]] || { echo "unknown ablation '${ab}'" >&2; exit 2; }
 cfg="configs/ablations/${ab}.yaml"

@@ -2,7 +2,8 @@
 # Data pipeline: MedQA -> raw/centralized -> partitions -> retrieval features -> demo assignments -> plots.
 # Extra args are passed to every step, e.g.:  bash scripts/prepare_data.sh --config configs/smoke.yaml
 set -euo pipefail
-cd "$(dirname "$0")/.."
+source "$(dirname "$0")/env.sh"
+[[ -x .venv/bin/python ]] || { echo "no .venv: run bash scripts/setup_env.sh first" >&2; exit 1; }
 
 python -m fedicl.data.prepare "$@"
 python -m fedicl.data.partition "$@"

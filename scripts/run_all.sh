@@ -3,7 +3,8 @@
 # Extra args are passed through, e.g.:  bash scripts/run_all.sh --config configs/smoke.yaml
 # Optional env: FEDICL_GPU=1 (GPU index as in nvidia-smi), FEDICL_ARMS="centralized_non_icl,centralized_icl"
 set -euo pipefail
-cd "$(dirname "$0")/.."
+source "$(dirname "$0")/env.sh"
+[[ -x .venv/bin/python ]] || { echo "no .venv: run bash scripts/setup_env.sh first" >&2; exit 1; }
 
 # Non-ICL arms first: they are ~4x cheaper and give the baselines early.
 all_arms=(centralized_non_icl federated_non_icl centralized_icl federated_icl)
