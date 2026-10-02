@@ -38,9 +38,17 @@ class PromptBuilder:
         self.enable_thinking = bool(cfg.model.enable_thinking)
         self.max_len = int(cfg.model.max_seq_len)
         self.seed = int(cfg.seed)
-        self.end_id = tokenizer.convert_tokens_to_ids(cfg.model.end_of_turn_token)
+        self.format = cfg.prompt.get("format", "chat")
+        if self.format not in ("chat", "text"):
+            raise ValueError(f"unknown prompt format {self.format!r}")
+        end_token = cfg.model.end_of_turn_token
+        self.end_id = (tokenizer.eos_token_id if end_token is None
+                       else tokenizer.convert_tokens_to_ids(end_token))
         if self.end_id is None or self.end_id == tokenizer.unk_token_id:
-            raise ValueError(f"tokenizer has no token {cfg.model.end_of_turn_token!r}")
+            raise ValueError(f"tokenizer has no valid answer end token ({end_token!r})")
+        limit = getattr(tokenizer, "model_max_length", None)
+        if limit is not None and self.max_len > limit:
+            raise ValueError(f"model.max_seq_len={self.max_len} exceeds tokenizer limit {limit}")
         self.truncated = 0  # number of examples that lost demos to fit max_seq_len
 
     def order(self, ex: Example) -> list[int]:
@@ -57,6 +65,10 @@ class PromptBuilder:
         return "\n\n".join(parts)
 
     def prompt_ids(self, ex: Example, demos: list[Example]) -> list[int]:
+        if self.format == "text":
+            text = f"{self.system}\n\n{self.user_text(ex, demos)}"
+            # BioGPT's tokenizer inserts its pretrained sequence-start token.
+            return self.tok(text, add_special_tokens=True).input_ids
         messages = [{"role": "system", "content": self.system},
                     {"role": "user", "content": self.user_text(ex, demos)}]
         text = self.tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True,
@@ -74,6 +86,8 @@ class PromptBuilder:
         """
         target = self.target_ids(ex) if with_target else []
         budget = self.max_len - (len(target) if with_target else reserve)
+        if budget <= 0:
+            raise ValueError(f"answer/reserve leaves no prompt space in {self.max_len} tokens")
         kept = list(demos)
         while True:
             ids = self.prompt_ids(ex, kept)

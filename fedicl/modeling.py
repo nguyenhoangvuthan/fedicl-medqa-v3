@@ -1,4 +1,4 @@
-"""Qwen3 + LoRA loading, adapter (de)serialization and FedAvg over LoRA weights."""
+"""Causal LM + LoRA loading, adapter (de)serialization and FedAvg over LoRA weights."""
 from __future__ import annotations
 
 import os
@@ -7,7 +7,6 @@ from pathlib import Path
 import torch
 
 from .utils import _retry, rmtree
-
 
 
 def device() -> str:
@@ -29,6 +28,9 @@ def load_base_model(cfg, dev: str):
     model = AutoModelForCausalLM.from_pretrained(
         cfg.model.name, dtype=getattr(torch, cfg.model.dtype),
         attn_implementation=cfg.model.attn_implementation)
+    limit = getattr(model.config, "max_position_embeddings", None)
+    if limit is not None and int(cfg.model.max_seq_len) > limit:
+        raise ValueError(f"model.max_seq_len={cfg.model.max_seq_len} exceeds model limit {limit}")
     model.config.use_cache = False
     return model.to(dev)
 
@@ -42,6 +44,10 @@ def load_lora_model(cfg, dev: str):
         model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
         model.enable_input_require_grads()
     lc = cfg.lora
+    module_names = {name.rsplit(".", 1)[-1] for name, _ in model.named_modules()}
+    missing = set(lc.target_modules) - module_names
+    if missing:
+        raise ValueError(f"LoRA target modules absent from {cfg.model.name}: {sorted(missing)}")
     model = get_peft_model(model, LoraConfig(
         r=lc.r, lora_alpha=lc.alpha, lora_dropout=lc.dropout,
         target_modules=list(lc.target_modules), bias="none", task_type="CAUSAL_LM"))
@@ -106,7 +112,7 @@ def load_adapter(arm_or_dir: str | Path, checkpoint: str = "best", cfg=None):
     load_adapter("outputs/qwen3-0.6b/seed42/federated_icl", "round_2")
     load_adapter("outputs/.../centralized_icl/best/adapter")
     """
-    from peft import PeftModel
+    from peft import PeftConfig, PeftModel
 
     from .config import load_config
 
@@ -117,7 +123,17 @@ def load_adapter(arm_or_dir: str | Path, checkpoint: str = "best", cfg=None):
             sub = (f"checkpoints/{checkpoint}/adapter" if checkpoint.startswith(("epoch_", "step_"))
                    else f"rounds/{checkpoint}/global_adapter")
         path = path / sub
-    cfg = cfg or load_config()
+    if cfg is None:
+        from omegaconf import OmegaConf
+
+        # Both an arm directory and a direct adapter path must recover the saved backbone.
+        config_path = next((parent / "config.yaml" for parent in path.parents
+                            if (parent / "config.yaml").is_file()), None)
+        cfg = OmegaConf.load(config_path) if config_path is not None else load_config()
+        saved_base = PeftConfig.from_pretrained(path).base_model_name_or_path
+        if saved_base and saved_base != cfg.model.name:
+            raise ValueError(f"adapter uses {saved_base!r}, but config uses {cfg.model.name!r}; "
+                             "pass its training cfg to load_adapter")
     base = load_base_model(cfg, device())
     model = PeftModel.from_pretrained(base, path).eval()
     return model, load_tokenizer(cfg)
@@ -125,4 +141,3 @@ def load_adapter(arm_or_dir: str | Path, checkpoint: str = "best", cfg=None):
 
 def gpu_name() -> str:
     return torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"
-

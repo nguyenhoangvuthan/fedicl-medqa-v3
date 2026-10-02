@@ -5,6 +5,7 @@ peft==0.21.0
 accelerate
 datasets==5.0.1
 safetensors
+sacremoses                           # BioGPT tokenizer
 omegaconf==2.3.1
 pandas==3.0.6
 matplotlib

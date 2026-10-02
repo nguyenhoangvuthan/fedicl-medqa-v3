@@ -1,4 +1,4 @@
-# FedICL-MQA — Federated In-Context Learning for MedQA (Qwen3-0.6B + LoRA)
+# FedICL-MQA — Federated In-Context Learning for MedQA (Qwen3 / BioGPT + LoRA)
 
 Implementation of `prompt-fedicl-medqa.md` (the spec). Section numbers below (§) refer to it.
 
@@ -126,6 +126,104 @@ cd D:\phungthan\fedicl-medqa-v3
 bash scripts/setup_env.sh          # .venv with torch 2.6 (CUDA 12.4) + the pinned stack
 source .venv/bin/activate
 ```
+
+## 1c. Run BioGPT (347M) on Windows Server 2025 + RTX A5000
+
+`configs/biogpt.yaml` selects [`microsoft/biogpt`](https://huggingface.co/microsoft/biogpt),
+plain-text prompts, tokenizer EOS, the `out_proj` LoRA target, and a 1024-token context.
+The default remains Qwen3. BioGPT trains new adapters and writes to
+`outputs/biogpt/seed42/<arm>/`; Qwen results remain in `outputs/qwen3-0.6b/seed42/`.
+The same four arms, data splits, client partitions, retrieval assignments, losses and
+validation-based checkpoint selection apply to both models.
+
+Run the following commands in **PowerShell 7 on the Windows server**, from the existing
+repository folder. Replace the example drive/path with your server's checkout location.
+Pull the branch containing the BioGPT changes before running:
+
+```powershell
+cd D:\phungthan\fedicl-medqa-v3
+git pull --ff-only
+
+# Existing environment: install only the new BioGPT tokenizer dependency
+. .\scripts\windows\env.ps1
+Invoke-Checked $Uv pip install --python $Py sacremoses
+
+# Select the A5000 index shown by nvidia-smi (use "1" for the second GPU)
+nvidia-smi
+$env:FEDICL_GPU = "0"
+
+# Clear any earlier arm subset so all four arms run
+Remove-Item Env:FEDICL_ARMS -ErrorAction SilentlyContinue
+```
+
+For a fresh server environment, run `scripts\windows\setup_env.ps1` as described in 1.3
+before loading `env.ps1`; fresh setups already install `sacremoses` from `requirements.txt`.
+An existing working Qwen environment only needs the dependency command above.
+
+First run the smoke test (120/24/24 questions; results in `outputs_smoke\biogpt\seed42\`):
+
+```powershell
+pwsh -ExecutionPolicy Bypass -File scripts\windows\smoke_test.ps1 --config configs/biogpt.yaml
+```
+
+After the smoke test succeeds, reuse the full data already prepared for Qwen. If the full
+`processed_data\MedQA\` pipeline has not been prepared, run this once (smoke data is separate):
+
+```powershell
+pwsh -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1 --config configs/biogpt.yaml
+```
+
+Then train and evaluate all four BioGPT arms on the selected A5000:
+
+```powershell
+pwsh -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 --config configs/biogpt.yaml *>&1 | Tee-Object run_biogpt.log
+```
+
+Results are under `outputs\biogpt\seed42\` (`headline.csv`, `summary.csv` and per-arm
+checkpoints/logs). If interrupted, run the same command again to resume; completed arms
+are skipped. Disconnecting Remote Desktop is fine, but do not sign out while training.
+
+For a single arm or saved-checkpoint evaluation, keep the model config on every command:
+
+```powershell
+Invoke-Py -m fedicl.run --arm federated_icl --config configs/biogpt.yaml
+Invoke-Py -m fedicl.eval --arm federated_icl --config configs/biogpt.yaml --checkpoint best
+Invoke-Py -m fedicl.summarize --config configs/biogpt.yaml
+```
+
+Optional Linux equivalent, with the project environment activated:
+
+```bash
+uv pip install sacremoses
+bash scripts/smoke_test.sh --config configs/biogpt.yaml
+# Only if full data is not already prepared:
+# bash scripts/prepare_data.sh --config configs/biogpt.yaml
+nohup bash scripts/run_all.sh --config configs/biogpt.yaml > run_biogpt.log 2>&1 &
+```
+
+If combining configuration files manually, use
+`--config configs/smoke.yaml --config configs/biogpt.yaml` in that order so smoke settings
+do not raise BioGPT's context above 1024. The smoke scripts already apply this order.
+`load_adapter("outputs/biogpt/seed42/federated_icl")` reads the saved training config to
+restore the correct backbone; for an adapter copied without that config, pass `cfg` explicitly.
+
+Compare accuracy and the ICL gain within each model using the same evaluation protocol.
+BioGPT's context includes both prompt and answer (generation reserves 64 tokens by default).
+The builder removes the least relevant demos first and, if the target question alone still
+overflows, retains the prompt tail. Check retained `demo_ids` in prediction JSONL files and
+the training log's demo-drop count: a requested 3-shot prompt may contain fewer than 3 demos.
+For a stricter comparison, use the same question and demo content that fits both tokenizers;
+equal token limits alone do not guarantee equal content. Absolute validation loss is not
+directly comparable across the two tokenizers. Select checkpoints within each model and
+report test accuracy, preferably over multiple seeds.
+
+Offline tests cover tiny randomly initialized BioGPT models (all four arms, answer loss,
+LoRA updates, generation, and adapter reload). They verify compatibility, not the pretrained
+model's accuracy or full GPU training; run the smoke command on the training machine first.
+The official BioGPT tokenizer was also checked on the existing centralized smoke subset:
+111/120 training questions retained all 3 demos and 9 retained 2; with a 64-token generation
+reserve, 21/24 validation and 22/24 test questions retained all 3 (the rest retained 2).
+These are prompt-length checks on that subset, not full-dataset or accuracy results.
 
 ## 2. Run (Linux; Windows: see 1.3 / 1.5)
 

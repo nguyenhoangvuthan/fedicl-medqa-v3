@@ -82,7 +82,7 @@ def prompt_lengths(cfg, out) -> None:
     ax.hist(non, bins=40, alpha=0.6, label="non-ICL")
     ax.hist(icl, bins=40, alpha=0.6, label="ICL (3 demos)")
     ax.axvline(cfg.model.max_seq_len, color="k", ls="--", label="max_seq_len")
-    ax.set_xlabel("prompt tokens (Qwen3)")
+    ax.set_xlabel(f"prompt tokens ({cfg.model.short_name})")
     ax.legend()
     fig.tight_layout()
     fig.savefig(out / "prompt_length_hist.png", dpi=150)
