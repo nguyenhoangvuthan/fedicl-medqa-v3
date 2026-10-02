@@ -9,6 +9,10 @@ files (`.tmp/`) and small library caches (`.cache/`). Nothing is written to `~/.
 `~/.bashrc` as long as commands go through `scripts/*.sh` or a shell that ran
 `source scripts/env.sh`. Delete the folder to uninstall.
 
+Disk: keep **>= 20 GB free** on the filesystem that holds the clone (environment ~7 GB, models and
+data ~3 GB, checkpoints/predictions of the 4 arms several GB more). Do not clone into `/tmp` when
+it is a RAM disk (`df -h /tmp` shows `tmpfs`): it fills up while unpacking the CUDA wheels.
+
 ## 1. One-time setup
 
 ```bash
