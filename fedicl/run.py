@@ -43,6 +43,21 @@ def _versions() -> dict:
             "transformers": transformers.__version__, "peft": peft.__version__}
 
 
+def missing_inputs(cfg) -> list[Path]:
+    """Prepared data this arm reads (prepare_data output); checked before the model is loaded."""
+    files = [centralized_dir(cfg) / f"{s}.csv" for s in ("train", "validation", "test")]
+    k = int(cfg.federated.num_clients)
+    if cfg.setting == "federated":
+        files += [partition_dir(cfg) / f"client_{i}.csv" for i in range(1, k + 1)]
+    if cfg.icl.enabled:
+        for s in ("train", "validation", "test"):
+            if cfg.setting == "centralized":
+                files.append(centralized_dir(cfg) / f"demo_assignment_{s}.json")
+            else:
+                files += [partition_dir(cfg) / f"demo_assignment_client_{i}_{s}.json" for i in range(1, k + 1)]
+    return [f for f in files if not f.exists()]
+
+
 def _demo_files(cfg) -> dict:
     if not cfg.icl.enabled:
         return {}
@@ -79,6 +94,14 @@ def main() -> None:
     if not args.arm:
         p.error("--arm is required")
     cfg = config_from_args(args)
+    missing = missing_inputs(cfg)
+    if missing:
+        configs = "".join(f" --config {c}" for c in args.config)
+        raise SystemExit(
+            f"data for {cfg.data.dataset} is not prepared: {len(missing)} file(s) missing, e.g. "
+            f"{missing[0]}\nRun the data pipeline first, with the same configs, and let it finish:\n"
+            f"  Windows: pwsh -ExecutionPolicy Bypass -File scripts\\windows\\prepare_data.ps1{configs}\n"
+            f"  Linux:   bash scripts/prepare_data.sh{configs}")
     require_gpu(cfg)
     out = arm_dir(cfg)
     chash = config_hash(cfg)

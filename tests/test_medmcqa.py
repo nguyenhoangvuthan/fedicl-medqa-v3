@@ -1,7 +1,11 @@
+import sys
+
 import numpy as np
 import pandas as pd
+import pytest
 
-from fedicl.config import ARMS, CONFIG_DIR, arm_dir, config_hash, load_config
+from fedicl import run
+from fedicl.config import ARMS, CONFIG_DIR, arm_dir, centralized_dir, config_hash, load_config, partition_dir
 from fedicl.data.io import LETTERS, meta_values
 from fedicl.data.partition import client_stats
 from fedicl.data.prepare import build_medmcqa, centralize, stratified_sample
@@ -94,3 +98,21 @@ def test_medmcqa_config_same_protocol_separate_paths():
     assert bio.save.root == "outputs/MedMCQA/biogpt/seed42"
     ab = load_config("federated_icl", [str(CONFIG_DIR / "ablations" / "k2.yaml"), MEDMCQA])
     assert ab.save.root == "outputs/ablation_k2/MedMCQA/qwen3-0.6b/seed42"
+
+
+def test_run_stops_before_loading_the_model_when_data_is_not_prepared(tmp_path, monkeypatch):
+    root = tmp_path.as_posix()
+    cfg = load_config("federated_icl", [MEDMCQA], [f"data.root={root}"])
+    assert len(run.missing_inputs(cfg)) == 3 + 3 + 9          # splits + clients + client demos
+    for s in ("train", "validation", "test"):
+        (centralized_dir(cfg) / f"{s}.csv").parent.mkdir(parents=True, exist_ok=True)
+        (centralized_dir(cfg) / f"{s}.csv").write_text("id\n")
+    assert run.missing_inputs(load_config("centralized_non_icl", [MEDMCQA], [f"data.root={root}"])) == []
+    assert all(p.parent == partition_dir(cfg) for p in run.missing_inputs(cfg))
+
+    out = tmp_path / "out"
+    monkeypatch.setattr(sys, "argv", ["run", "--arm", "centralized_icl", "--config", MEDMCQA,
+                                      f"data.root={root}", f"save.root={out.as_posix()}"])
+    with pytest.raises(SystemExit, match="prepare_data.ps1 --config .*medmcqa.yaml"):
+        run.main()
+    assert not out.exists()                                    # no failed run_meta.json left behind
