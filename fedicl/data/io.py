@@ -13,6 +13,16 @@ OPTION_COLS = tuple(f"option_{l}" for l in LETTERS)
 RAW_COLUMNS = ["id", "question", *OPTION_COLS, "answer", "meta"]
 COLUMNS = [*RAW_COLUMNS, "q_hash"]
 SPLITS = ("train", "validation", "test")
+# `meta` vocabulary per dataset for statistics; a dataset not listed (MedMCQA: subject_name) uses
+# every value found in the data.
+META_VALUES = {"MedQA": ("step1", "step2&3")}
+
+
+def meta_values(dataset: str, frames: list[pd.DataFrame], with_unknown: bool = False) -> list[str]:
+    """`meta` values counted in summaries. with_unknown adds MedQA's 'unknown' (no meta match)."""
+    if dataset in META_VALUES:
+        return [*META_VALUES[dataset], *(["unknown"] if with_unknown else [])]
+    return sorted(set().union(*(set(df["meta"]) for df in frames)))
 
 
 def load_split(path: str | Path) -> pd.DataFrame:

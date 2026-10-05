@@ -4,4 +4,4 @@
 loss:
   icl: {weight: 0.0}
 save:
-  root: outputs/ablation_no_licl/${model.short_name}/seed${seed}
+  root: outputs/ablation_no_licl/${dataset_subdir:${data.dataset}}${model.short_name}/seed${seed}

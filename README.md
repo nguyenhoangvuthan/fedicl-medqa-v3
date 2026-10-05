@@ -225,6 +225,60 @@ The official BioGPT tokenizer was also checked on the existing centralized smoke
 reserve, 21/24 validation and 22/24 test questions retained all 3 (the rest retained 2).
 These are prompt-length checks on that subset, not full-dataset or accuracy results.
 
+## 1d. Second dataset: MedMCQA
+
+`configs/medmcqa.yaml` switches the data to [MedMCQA](https://huggingface.co/datasets/openlifescienceai/medmcqa)
+(Pal et al., 2022: AIIMS / NEET-PG exam questions, 4 options, 21 subjects). Model, prompt,
+retrieval, losses, training budget and evaluation stay identical to MedQA; only the data changes.
+Add `--config configs/medmcqa.yaml` to **every** command (order does not matter, it combines with
+`smoke.yaml`, `biogpt.yaml` and the ablation configs). Data goes to `processed_data\MedMCQA\`,
+results to `outputs\MedMCQA\<model>\seed42\`; MedQA paths and the `config_hash` of existing MedQA
+runs are unchanged, so those runs still resume or skip as before.
+
+| | MedQA | MedMCQA (`configs/medmcqa.yaml`) |
+| --- | --- | --- |
+| train / validation | official 10178 / 1272 | subject-stratified samples of the official train split, same sizes 10178 / 1272, disjoint |
+| test | official test 1273 | official validation (dev) 4183 → **4157**: the official test has no labels |
+| `meta` | step1 / step2&3 | `subject_name` (21 subjects, incl. `Unknown`) |
+| non-IID partition | Dirichlet over `answer` | Dirichlet over `meta` = subject (`data_prep.label_key: meta`), i.e. specialty-skewed clients |
+
+Cleaning (counts in `processed_data\MedMCQA\config.json` → `source.dropped`): questions with an empty
+option or two options that are identical after normalization are dropped (26 dev, 820 train), since
+text → option matching cannot score them. Train/validation are sampled after removing train
+questions whose `q_hash` is in the test split (8) or already seen (26 800 duplicates), so no
+`q_hash` is shared across splits. `choice_type = multi` questions are kept: they still have exactly
+one correct option. Note the test split's subject mix differs from train (Dental is 31% of dev vs
+5% of train), as in every MedMCQA dev-set result; for per-subject accuracy, join `id` of the
+`predictions_*.jsonl` files with `processed_data\MedMCQA\centralized\test.csv` (`meta` column).
+
+Windows server (PowerShell 7, repo root):
+
+```powershell
+cd D:\phungthan\fedicl-medqa-v3
+git pull --ff-only
+pwsh -ExecutionPolicy Bypass -File scripts\windows\smoke_test.ps1 --config configs/medmcqa.yaml     # optional, ~10 min
+pwsh -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1 --config configs/medmcqa.yaml   # once
+pwsh -ExecutionPolicy Bypass -File scripts\windows\run_all.ps1 --config configs/medmcqa.yaml *>&1 | Tee-Object run_medmcqa.log
+```
+
+Both GPUs in parallel work as in 1.4: set `FEDICL_GPU` / `FEDICL_ARMS` in each window and pass
+`--config configs/medmcqa.yaml` to `run_all.ps1`. Single commands, e.g. BioGPT on MedMCQA:
+
+```powershell
+. .\scripts\windows\env.ps1
+Invoke-Py -m fedicl.run --arm federated_icl --config configs/medmcqa.yaml
+Invoke-Py -m fedicl.run --arm federated_icl --config configs/medmcqa.yaml --config configs/biogpt.yaml
+Invoke-Py -m fedicl.summarize --config configs/medmcqa.yaml
+```
+
+Linux: `bash scripts/prepare_data.sh --config configs/medmcqa.yaml`, then
+`bash scripts/run_all.sh --config configs/medmcqa.yaml`.
+
+MedMCQA questions are short (median 9 words). Retrieval encodes the question only, as for MedQA;
+encoding the options too is an ablation that needs no code change:
+`retrieval.question_encoder.fields=[question,option_A,option_B,option_C,option_D]` (run it with its
+own `data.root=...`, because demo assignments are written under the data folder).
+
 ## 2. Run (Linux; Windows: see 1.3 / 1.5)
 
 ```bash

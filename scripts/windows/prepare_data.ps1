@@ -1,4 +1,4 @@
-# Data pipeline: MedQA -> raw/centralized -> partitions -> features -> demo assignments -> plots.
+# Data pipeline: MedQA (or MedMCQA with --config configs/medmcqa.yaml) -> raw/centralized -> partitions -> features -> demo assignments -> plots.
 #   pwsh -ExecutionPolicy Bypass -File scripts\windows\prepare_data.ps1 [-Gpu 0|1] [--config configs/smoke.yaml] [overrides...]
 param([ValidateSet("0", "1")][string]$Gpu = "")   # -Gpu 0 or -Gpu 1 (nvidia-smi index)
 . "$PSScriptRoot\env.ps1"

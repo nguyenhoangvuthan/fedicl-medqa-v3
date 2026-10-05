@@ -104,7 +104,7 @@ runtime:
   deterministic: true                  # deterministic CUDA kernels: same seed => same numbers (small slowdown)
 
 save:
-  root: outputs/${model.short_name}/seed${seed}
+  root: outputs/${dataset_subdir:${data.dataset}}${model.short_name}/seed${seed}
   save_client_adapters: true
   keep_last_k_states: 2
   overwrite: false

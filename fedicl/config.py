@@ -21,6 +21,12 @@ ARMS = ("centralized_icl", "centralized_non_icl", "federated_icl", "federated_no
 _HASH_EXCLUDE = {("save", "overwrite"), ("eval", "batch_size"), ("eval", "gen_batch_size"),
                  ("runtime", "gpu")}
 
+# save.root: ${dataset_subdir:${data.dataset}} is "" for MedQA (paths of existing runs, and hence their
+# config_hash, are unchanged) and "<dataset>/" otherwise, so another dataset never shares an output dir.
+DEFAULT_DATASET = "MedQA"
+OmegaConf.register_new_resolver(
+    "dataset_subdir", lambda name: "" if name == DEFAULT_DATASET else f"{name}/", replace=True)
+
 
 def load_config(arm: str | None = None, extra: list[str] | None = None,
                 overrides: list[str] | None = None) -> DictConfig:

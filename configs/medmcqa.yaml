@@ -1,0 +1,17 @@
+# MedMCQA (Pal et al., 2022; AIIMS / NEET-PG, 21 subjects) as a second dataset. Merge it with
+# any other config, in any order:  --config configs/medmcqa.yaml [--config configs/biogpt.yaml]
+#                                  --config configs/smoke.yaml --config configs/medmcqa.yaml
+# Data -> <data.root>/MedMCQA/, results -> outputs/MedMCQA/<model>/seed<seed>/ (MedQA paths unchanged).
+# Same model, prompt, retrieval, losses, training budget and evaluation as MedQA; only the data differs.
+data:
+  dataset: MedMCQA
+  hf_source: openlifescienceai/medmcqa       # official train/validation/test = 182822/4183/6150
+  hf_meta_source: null                       # meta = subject_name, already in the dataset
+  # The official test split has no labels: test = official validation (4183 -> 4157 after dropping
+  # questions with an empty option or two identical options). train/validation = disjoint
+  # subject-stratified samples of the official train split (deduplicated, no question also in test),
+  # the same sizes as MedQA so the training budget is comparable.
+  sample: {train: 10178, validation: 1272}
+
+data_prep:
+  label_key: meta                            # Dirichlet non-IID over subjects (hospital/specialty skew)

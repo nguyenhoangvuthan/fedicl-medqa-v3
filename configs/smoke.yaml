@@ -25,4 +25,4 @@ eval:
   gen_batch_size: 8
   generation: {max_new_tokens: 24}
 save:
-  root: outputs_smoke/${model.short_name}/seed${seed}
+  root: outputs_smoke/${dataset_subdir:${data.dataset}}${model.short_name}/seed${seed}

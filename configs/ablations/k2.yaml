@@ -4,4 +4,4 @@
 federated:
   num_clients: 2
 save:
-  root: outputs/ablation_k2/${model.short_name}/seed${seed}
+  root: outputs/ablation_k2/${dataset_subdir:${data.dataset}}${model.short_name}/seed${seed}

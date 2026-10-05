@@ -12,7 +12,7 @@ import pandas as pd
 
 from ..config import add_config_args, centralized_dir, config_from_args, data_dir, partition_dir
 from ..utils import read_json, rng_for, setup_logging, write_csv_df, write_json
-from .io import LETTERS, load_split, save_split
+from .io import LETTERS, load_split, meta_values, save_split
 
 LOG = logging.getLogger("fedicl.partition")
 
@@ -38,26 +38,26 @@ def dirichlet_split(labels: np.ndarray, k: int, alpha: float, rng: np.random.Gen
     raise RuntimeError(f"Dirichlet(alpha={alpha}, k={k}) never gave every client >= {min_size} samples")
 
 
-def client_stats(clients: list[pd.DataFrame]) -> pd.DataFrame:
+def client_stats(clients: list[pd.DataFrame], metas: list[str]) -> pd.DataFrame:
     rows = []
     for i, df in enumerate(clients, start=1):
         row = {"client_id": i, "n_samples": len(df)}
         for l in LETTERS:
             row[f"answer_{l}"] = int((df["answer"] == l).sum())
-        row["meta_step1"] = int((df["meta"] == "step1").sum())
-        row["meta_step2&3"] = int((df["meta"] == "step2&3").sum())
+        for m in metas:
+            row[f"meta_{m}"] = int((df["meta"] == m).sum())
         rows.append(row)
     return pd.DataFrame(rows)
 
 
-def write_partition(train: pd.DataFrame, parts: list[np.ndarray], out_dir) -> pd.DataFrame:
+def write_partition(train: pd.DataFrame, parts: list[np.ndarray], out_dir, metas: list[str]) -> pd.DataFrame:
     ids = [set(train["id"].iloc[p]) for p in parts]
     assert set().union(*ids) == set(train["id"]), "union of clients != train"
     assert sum(len(s) for s in ids) == len(train), "clients overlap"
     clients = [train.iloc[p].reset_index(drop=True) for p in parts]
     for i, df in enumerate(clients, start=1):
         save_split(df, out_dir / f"client_{i}.csv")
-    stats = client_stats(clients)
+    stats = client_stats(clients, metas)
     write_csv_df(out_dir / "stats.csv", stats)
     return stats
 
@@ -72,6 +72,7 @@ def main() -> None:
 
     train = load_split(centralized_dir(cfg) / "train.csv")
     labels = train[dp.label_key].to_numpy()
+    metas = meta_values(cfg.data.dataset, [train])
     grid = [("iid", None, k) for k in dp.iid_k] + \
            [("noniid", a, k) for a in dp.noniid_alphas for k in dp.noniid_k]
     summary = {}
@@ -80,7 +81,7 @@ def main() -> None:
         parts = (iid_split(len(train), k, rng) if ptype == "iid"
                  else dirichlet_split(labels, k, float(alpha), rng, dp.min_client_size))
         out = partition_dir(cfg, ptype, alpha, k)
-        stats = write_partition(train, parts, out)
+        stats = write_partition(train, parts, out, metas)
         name = str(out.relative_to(data_dir(cfg)))
         summary[name] = stats["n_samples"].tolist()
         LOG.info("%s\n%s", name, stats.to_string(index=False))
