@@ -1,0 +1,178 @@
+2026-10-05 14:15:11,655 | INFO | fedicl.run | arm federated_non_icl -> D:\phungthan\fedicl-medqa-v3\outputs\biogpt\seed42\federated_non_icl (config_hash 3c70b61b6c17822b)
+
+Loading weights:   0%|          | 0/389 [00:00<?, ?it/s]
+Loading weights:  26%|##6       | 102/389 [00:00<00:00, 1019.32it/s]
+Loading weights:  52%|#####2    | 204/389 [00:00<00:00, 790.65it/s] 
+Loading weights:  82%|########1 | 318/389 [00:00<00:00, 911.85it/s]
+Loading weights: 100%|##########| 389/389 [00:00<00:00, 843.36it/s]
+2026-10-05 14:15:40,028 | INFO | fedicl.federated | client_1: 6040 train items
+2026-10-05 14:15:48,809 | INFO | fedicl.federated | client_2: 2798 train items
+2026-10-05 14:15:52,840 | INFO | fedicl.federated | client_3: 1340 train items
+2026-10-05 14:15:52,840 | INFO | fedicl.federated | demos dropped to fit max_seq_len: 0
+
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]
+Loading weights:   2%|2         | 4/199 [00:00<00:06, 28.81it/s]
+Loading weights:  10%|9         | 19/199 [00:00<00:02, 83.04it/s]
+Loading weights: 100%|##########| 199/199 [00:00<00:00, 652.18it/s]
+2026-10-05 14:15:56,467 | INFO | fedicl.federated | resumed after round 3
+2026-10-05 14:16:34,364 | INFO | fedicl.federated | round 4 client 1 step 20/378 loss=0.2757 (qa 0.2726 icl 0.0000 reg 0.00307)
+2026-10-05 14:17:10,266 | INFO | fedicl.federated | round 4 client 1 step 40/378 loss=0.3213 (qa 0.3163 icl 0.0000 reg 0.00490)
+2026-10-05 14:17:46,375 | INFO | fedicl.federated | round 4 client 1 step 60/378 loss=0.3056 (qa 0.2992 icl 0.0000 reg 0.00637)
+2026-10-05 14:18:22,278 | INFO | fedicl.federated | round 4 client 1 step 80/378 loss=0.2792 (qa 0.2721 icl 0.0000 reg 0.00717)
+2026-10-05 14:18:58,292 | INFO | fedicl.federated | round 4 client 1 step 100/378 loss=0.4282 (qa 0.4201 icl 0.0000 reg 0.00810)
+2026-10-05 14:19:34,701 | INFO | fedicl.federated | round 4 client 1 step 120/378 loss=0.3332 (qa 0.3242 icl 0.0000 reg 0.00899)
+2026-10-05 14:20:11,192 | INFO | fedicl.federated | round 4 client 1 step 140/378 loss=0.3244 (qa 0.3146 icl 0.0000 reg 0.00976)
+2026-10-05 14:20:47,633 | INFO | fedicl.federated | round 4 client 1 step 160/378 loss=0.3449 (qa 0.3347 icl 0.0000 reg 0.01019)
+2026-10-05 14:21:23,926 | INFO | fedicl.federated | round 4 client 1 step 180/378 loss=0.3383 (qa 0.3278 icl 0.0000 reg 0.01054)
+2026-10-05 14:22:00,365 | INFO | fedicl.federated | round 4 client 1 step 200/378 loss=0.4627 (qa 0.4518 icl 0.0000 reg 0.01090)
+2026-10-05 14:22:36,733 | INFO | fedicl.federated | round 4 client 1 step 220/378 loss=0.2517 (qa 0.2408 icl 0.0000 reg 0.01093)
+2026-10-05 14:23:13,295 | INFO | fedicl.federated | round 4 client 1 step 240/378 loss=0.2970 (qa 0.2860 icl 0.0000 reg 0.01106)
+2026-10-05 14:23:49,601 | INFO | fedicl.federated | round 4 client 1 step 260/378 loss=0.3402 (qa 0.3290 icl 0.0000 reg 0.01122)
+2026-10-05 14:24:26,182 | INFO | fedicl.federated | round 4 client 1 step 280/378 loss=0.4379 (qa 0.4263 icl 0.0000 reg 0.01153)
+2026-10-05 14:25:02,679 | INFO | fedicl.federated | round 4 client 1 step 300/378 loss=0.3554 (qa 0.3437 icl 0.0000 reg 0.01168)
+2026-10-05 14:25:39,147 | INFO | fedicl.federated | round 4 client 1 step 320/378 loss=0.3378 (qa 0.3260 icl 0.0000 reg 0.01178)
+2026-10-05 14:26:15,272 | INFO | fedicl.federated | round 4 client 1 step 340/378 loss=0.2968 (qa 0.2849 icl 0.0000 reg 0.01190)
+2026-10-05 14:26:51,848 | INFO | fedicl.federated | round 4 client 1 step 360/378 loss=0.2418 (qa 0.2299 icl 0.0000 reg 0.01197)
+2026-10-05 14:28:01,835 | INFO | fedicl.federated | round 4 client 2 step 20/175 loss=0.4080 (qa 0.4048 icl 0.0000 reg 0.00312)
+2026-10-05 14:28:38,436 | INFO | fedicl.federated | round 4 client 2 step 40/175 loss=0.3890 (qa 0.3840 icl 0.0000 reg 0.00501)
+2026-10-05 14:29:14,814 | INFO | fedicl.federated | round 4 client 2 step 60/175 loss=0.3714 (qa 0.3652 icl 0.0000 reg 0.00619)
+2026-10-05 14:29:51,341 | INFO | fedicl.federated | round 4 client 2 step 80/175 loss=0.4125 (qa 0.4056 icl 0.0000 reg 0.00692)
+2026-10-05 14:30:27,558 | INFO | fedicl.federated | round 4 client 2 step 100/175 loss=0.4368 (qa 0.4292 icl 0.0000 reg 0.00763)
+2026-10-05 14:31:04,011 | INFO | fedicl.federated | round 4 client 2 step 120/175 loss=0.3271 (qa 0.3189 icl 0.0000 reg 0.00816)
+2026-10-05 14:31:40,131 | INFO | fedicl.federated | round 4 client 2 step 140/175 loss=0.3996 (qa 0.3912 icl 0.0000 reg 0.00842)
+2026-10-05 14:32:16,309 | INFO | fedicl.federated | round 4 client 2 step 160/175 loss=0.3139 (qa 0.3051 icl 0.0000 reg 0.00882)
+2026-10-05 14:33:21,757 | INFO | fedicl.federated | round 4 client 3 step 20/84 loss=0.3359 (qa 0.3330 icl 0.0000 reg 0.00293)
+2026-10-05 14:33:58,262 | INFO | fedicl.federated | round 4 client 3 step 40/84 loss=0.3678 (qa 0.3633 icl 0.0000 reg 0.00452)
+2026-10-05 14:34:34,973 | INFO | fedicl.federated | round 4 client 3 step 60/84 loss=0.3487 (qa 0.3435 icl 0.0000 reg 0.00526)
+2026-10-05 14:35:07,291 | INFO | fedicl.federated | round 4 client 3 step 80/84 loss=0.3066 (qa 0.3007 icl 0.0000 reg 0.00584)
+2026-10-05 14:36:58,619 | INFO | fedicl.train |   eval validation none             val_loss=0.3142 acc=0.3027
+2026-10-05 14:38:28,568 | INFO | fedicl.train |   eval test       none             val_loss=0.3399 acc=0.2749
+2026-10-05 14:38:28,628 | INFO | fedicl.federated | round 4: monitored val_loss=0.3142 best=0.3142 (round_4)
+2026-10-05 14:39:00,118 | INFO | fedicl.federated | round 5 client 1 step 20/378 loss=0.2407 (qa 0.2394 icl 0.0000 reg 0.00125)
+2026-10-05 14:39:31,728 | INFO | fedicl.federated | round 5 client 1 step 40/378 loss=0.2086 (qa 0.2065 icl 0.0000 reg 0.00207)
+2026-10-05 14:40:03,600 | INFO | fedicl.federated | round 5 client 1 step 60/378 loss=0.3655 (qa 0.3629 icl 0.0000 reg 0.00260)
+2026-10-05 14:40:34,368 | INFO | fedicl.federated | round 5 client 1 step 80/378 loss=0.3342 (qa 0.3311 icl 0.0000 reg 0.00311)
+2026-10-05 14:41:05,456 | INFO | fedicl.federated | round 5 client 1 step 100/378 loss=0.3336 (qa 0.3301 icl 0.0000 reg 0.00358)
+2026-10-05 14:41:36,267 | INFO | fedicl.federated | round 5 client 1 step 120/378 loss=0.3744 (qa 0.3705 icl 0.0000 reg 0.00395)
+2026-10-05 14:42:07,547 | INFO | fedicl.federated | round 5 client 1 step 140/378 loss=0.2810 (qa 0.2767 icl 0.0000 reg 0.00426)
+2026-10-05 14:42:38,433 | INFO | fedicl.federated | round 5 client 1 step 160/378 loss=0.3100 (qa 0.3056 icl 0.0000 reg 0.00443)
+2026-10-05 14:43:09,442 | INFO | fedicl.federated | round 5 client 1 step 180/378 loss=0.3940 (qa 0.3895 icl 0.0000 reg 0.00457)
+2026-10-05 14:43:40,775 | INFO | fedicl.federated | round 5 client 1 step 200/378 loss=0.3075 (qa 0.3027 icl 0.0000 reg 0.00473)
+2026-10-05 14:44:12,628 | INFO | fedicl.federated | round 5 client 1 step 220/378 loss=0.2690 (qa 0.2642 icl 0.0000 reg 0.00487)
+2026-10-05 14:44:46,100 | INFO | fedicl.federated | round 5 client 1 step 240/378 loss=0.3761 (qa 0.3712 icl 0.0000 reg 0.00496)
+2026-10-05 14:45:17,719 | INFO | fedicl.federated | round 5 client 1 step 260/378 loss=0.2282 (qa 0.2232 icl 0.0000 reg 0.00503)
+2026-10-05 14:45:49,996 | INFO | fedicl.federated | round 5 client 1 step 280/378 loss=0.3923 (qa 0.3872 icl 0.0000 reg 0.00510)
+2026-10-05 14:46:21,648 | INFO | fedicl.federated | round 5 client 1 step 300/378 loss=0.2744 (qa 0.2694 icl 0.0000 reg 0.00506)
+2026-10-05 14:46:53,004 | INFO | fedicl.federated | round 5 client 1 step 320/378 loss=0.3304 (qa 0.3254 icl 0.0000 reg 0.00501)
+2026-10-05 14:47:24,813 | INFO | fedicl.federated | round 5 client 1 step 340/378 loss=0.2826 (qa 0.2776 icl 0.0000 reg 0.00500)
+2026-10-05 14:47:56,242 | INFO | fedicl.federated | round 5 client 1 step 360/378 loss=0.5030 (qa 0.4981 icl 0.0000 reg 0.00497)
+2026-10-05 14:48:58,233 | INFO | fedicl.federated | round 5 client 2 step 20/175 loss=0.3078 (qa 0.3066 icl 0.0000 reg 0.00119)
+2026-10-05 14:49:30,038 | INFO | fedicl.federated | round 5 client 2 step 40/175 loss=0.4222 (qa 0.4203 icl 0.0000 reg 0.00197)
+2026-10-05 14:50:01,210 | INFO | fedicl.federated | round 5 client 2 step 60/175 loss=0.4028 (qa 0.4004 icl 0.0000 reg 0.00240)
+2026-10-05 14:50:32,795 | INFO | fedicl.federated | round 5 client 2 step 80/175 loss=0.4974 (qa 0.4947 icl 0.0000 reg 0.00270)
+2026-10-05 14:51:03,849 | INFO | fedicl.federated | round 5 client 2 step 100/175 loss=0.4255 (qa 0.4226 icl 0.0000 reg 0.00291)
+2026-10-05 14:51:35,245 | INFO | fedicl.federated | round 5 client 2 step 120/175 loss=0.3399 (qa 0.3369 icl 0.0000 reg 0.00305)
+2026-10-05 14:52:06,258 | INFO | fedicl.federated | round 5 client 2 step 140/175 loss=0.3628 (qa 0.3597 icl 0.0000 reg 0.00311)
+2026-10-05 14:52:37,478 | INFO | fedicl.federated | round 5 client 2 step 160/175 loss=0.3676 (qa 0.3644 icl 0.0000 reg 0.00317)
+2026-10-05 14:53:35,927 | INFO | fedicl.federated | round 5 client 3 step 20/84 loss=0.3913 (qa 0.3902 icl 0.0000 reg 0.00114)
+2026-10-05 14:54:09,188 | INFO | fedicl.federated | round 5 client 3 step 40/84 loss=0.2525 (qa 0.2507 icl 0.0000 reg 0.00180)
+2026-10-05 14:54:42,046 | INFO | fedicl.federated | round 5 client 3 step 60/84 loss=0.3268 (qa 0.3247 icl 0.0000 reg 0.00205)
+2026-10-05 14:55:21,462 | INFO | fedicl.federated | round 5 client 3 step 80/84 loss=0.4062 (qa 0.4041 icl 0.0000 reg 0.00219)
+2026-10-05 14:57:06,418 | INFO | fedicl.train |   eval validation none             val_loss=0.3075 acc=0.2972
+2026-10-05 14:58:30,154 | INFO | fedicl.train |   eval test       none             val_loss=0.3345 acc=0.2773
+2026-10-05 14:58:30,257 | INFO | fedicl.federated | round 5: monitored val_loss=0.3075 best=0.3075 (round_5)
+2026-10-05 14:58:31,208 | WARNING | fedicl.centralized | budget exhausted while val_loss still improving: consider `python -m fedicl.run --arm <arm> --extend_to 5`
+2026-10-05 14:58:31,313 | INFO | fedicl.run | done: {'best_at': 'round_5', 'best_test_acc': 0.27729772191673213}
+2026-10-05 14:58:40,890 | INFO | fedicl.run | arm federated_icl -> D:\phungthan\fedicl-medqa-v3\outputs\biogpt\seed42\federated_icl (config_hash b26d124c72ea77ed)
+
+Loading weights:   0%|          | 0/389 [00:00<?, ?it/s]
+Loading weights:  28%|##8       | 110/389 [00:00<00:00, 1086.70it/s]
+Loading weights:  56%|#####6    | 219/389 [00:00<00:00, 972.55it/s] 
+Loading weights:  82%|########1 | 318/389 [00:00<00:00, 915.20it/s]
+Loading weights: 100%|##########| 389/389 [00:00<00:00, 862.82it/s]
+2026-10-05 15:00:59,031 | INFO | fedicl.federated | client_1: 6040 train items
+2026-10-05 15:01:57,409 | INFO | fedicl.federated | client_2: 2798 train items
+2026-10-05 15:02:26,006 | INFO | fedicl.federated | client_3: 1340 train items
+2026-10-05 15:02:26,008 | INFO | fedicl.federated | demos dropped to fit max_seq_len: 1705
+
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]
+Loading weights:  10%|#         | 20/199 [00:00<00:01, 103.55it/s]
+Loading weights:  16%|#5        | 31/199 [00:00<00:02, 74.75it/s] 
+Loading weights: 100%|##########| 199/199 [00:00<00:00, 478.61it/s]
+2026-10-05 15:02:29,425 | INFO | fedicl.federated | resumed after round 3
+2026-10-05 15:04:12,771 | INFO | fedicl.federated | round 4 client 1 step 20/378 loss=0.2690 (qa 0.2428 icl 0.0462 reg 0.00308)
+2026-10-05 15:05:54,431 | INFO | fedicl.federated | round 4 client 1 step 40/378 loss=0.3282 (qa 0.2782 icl 0.0902 reg 0.00493)
+2026-10-05 15:07:35,957 | INFO | fedicl.federated | round 4 client 1 step 60/378 loss=0.3699 (qa 0.3208 icl 0.0858 reg 0.00617)
+2026-10-05 15:09:16,284 | INFO | fedicl.federated | round 4 client 1 step 80/378 loss=0.2822 (qa 0.2270 icl 0.0962 reg 0.00709)
+2026-10-05 15:10:58,641 | INFO | fedicl.federated | round 4 client 1 step 100/378 loss=0.4346 (qa 0.3774 icl 0.0982 reg 0.00804)
+2026-10-05 15:12:38,738 | INFO | fedicl.federated | round 4 client 1 step 120/378 loss=0.3349 (qa 0.2919 icl 0.0686 reg 0.00864)
+2026-10-05 15:14:20,993 | INFO | fedicl.federated | round 4 client 1 step 140/378 loss=0.2875 (qa 0.2619 icl 0.0328 reg 0.00925)
+2026-10-05 15:16:02,536 | INFO | fedicl.federated | round 4 client 1 step 160/378 loss=0.4366 (qa 0.3754 icl 0.1029 reg 0.00973)
+2026-10-05 15:17:42,545 | INFO | fedicl.federated | round 4 client 1 step 180/378 loss=0.3614 (qa 0.3019 icl 0.0990 reg 0.00999)
+2026-10-05 15:19:24,520 | INFO | fedicl.federated | round 4 client 1 step 200/378 loss=0.4378 (qa 0.3918 icl 0.0714 reg 0.01035)
+2026-10-05 15:21:06,155 | INFO | fedicl.federated | round 4 client 1 step 220/378 loss=0.3200 (qa 0.2776 icl 0.0634 reg 0.01065)
+2026-10-05 15:22:47,004 | INFO | fedicl.federated | round 4 client 1 step 240/378 loss=0.3403 (qa 0.3015 icl 0.0560 reg 0.01079)
+2026-10-05 15:24:28,706 | INFO | fedicl.federated | round 4 client 1 step 260/378 loss=0.4157 (qa 0.3477 icl 0.1140 reg 0.01100)
+2026-10-05 15:26:10,953 | INFO | fedicl.federated | round 4 client 1 step 280/378 loss=0.4419 (qa 0.3905 icl 0.0802 reg 0.01133)
+2026-10-05 15:27:53,364 | INFO | fedicl.federated | round 4 client 1 step 300/378 loss=0.2951 (qa 0.2431 icl 0.0810 reg 0.01151)
+2026-10-05 15:29:35,510 | INFO | fedicl.federated | round 4 client 1 step 320/378 loss=0.4200 (qa 0.3619 icl 0.0928 reg 0.01169)
+2026-10-05 15:31:17,785 | INFO | fedicl.federated | round 4 client 1 step 340/378 loss=0.3494 (qa 0.2938 icl 0.0877 reg 0.01170)
+2026-10-05 15:32:59,348 | INFO | fedicl.federated | round 4 client 1 step 360/378 loss=0.3587 (qa 0.3104 icl 0.0732 reg 0.01172)
+2026-10-05 15:36:11,799 | INFO | fedicl.federated | round 4 client 2 step 20/175 loss=0.4783 (qa 0.4451 icl 0.0602 reg 0.00311)
+2026-10-05 15:37:52,123 | INFO | fedicl.federated | round 4 client 2 step 40/175 loss=0.5040 (qa 0.4610 icl 0.0762 reg 0.00494)
+2026-10-05 15:39:32,196 | INFO | fedicl.federated | round 4 client 2 step 60/175 loss=0.4252 (qa 0.3878 icl 0.0627 reg 0.00602)
+2026-10-05 15:41:12,427 | INFO | fedicl.federated | round 4 client 2 step 80/175 loss=0.3737 (qa 0.3298 icl 0.0744 reg 0.00670)
+2026-10-05 15:42:54,277 | INFO | fedicl.federated | round 4 client 2 step 100/175 loss=0.4952 (qa 0.4452 icl 0.0851 reg 0.00750)
+2026-10-05 15:44:33,850 | INFO | fedicl.federated | round 4 client 2 step 120/175 loss=0.4280 (qa 0.3907 icl 0.0585 reg 0.00804)
+2026-10-05 15:46:14,901 | INFO | fedicl.federated | round 4 client 2 step 140/175 loss=0.4758 (qa 0.4279 icl 0.0790 reg 0.00841)
+2026-10-05 15:47:54,202 | INFO | fedicl.federated | round 4 client 2 step 160/175 loss=0.3862 (qa 0.3502 icl 0.0545 reg 0.00875)
+2026-10-05 15:50:52,639 | INFO | fedicl.federated | round 4 client 3 step 20/84 loss=0.3447 (qa 0.3126 icl 0.0585 reg 0.00283)
+2026-10-05 15:52:34,376 | INFO | fedicl.federated | round 4 client 3 step 40/84 loss=0.3611 (qa 0.3319 icl 0.0497 reg 0.00433)
+2026-10-05 15:54:14,961 | INFO | fedicl.federated | round 4 client 3 step 60/84 loss=0.3834 (qa 0.3262 icl 0.1041 reg 0.00517)
+2026-10-05 15:55:57,699 | INFO | fedicl.federated | round 4 client 3 step 80/84 loss=0.4076 (qa 0.3695 icl 0.0647 reg 0.00573)
+2026-10-05 15:59:26,044 | INFO | fedicl.train |   eval validation client_1         val_loss=0.3153 acc=0.3011
+2026-10-05 16:02:25,696 | INFO | fedicl.train |   eval validation client_2         val_loss=0.3146 acc=0.2932
+2026-10-05 16:05:27,536 | INFO | fedicl.train |   eval validation client_3         val_loss=0.3171 acc=0.3003
+2026-10-05 16:08:19,349 | INFO | fedicl.train |   eval test       client_1         val_loss=0.3376 acc=0.2875
+2026-10-05 16:11:10,577 | INFO | fedicl.train |   eval test       client_2         val_loss=0.3400 acc=0.2687
+2026-10-05 16:13:59,690 | INFO | fedicl.train |   eval test       client_3         val_loss=0.3385 acc=0.2639
+2026-10-05 16:13:59,828 | INFO | fedicl.federated | round 4: monitored val_loss=0.3157 best=0.3157 (round_4)
+2026-10-05 16:15:42,068 | INFO | fedicl.federated | round 5 client 1 step 20/378 loss=0.2981 (qa 0.2679 icl 0.0581 reg 0.00122)
+2026-10-05 16:17:24,659 | INFO | fedicl.federated | round 5 client 1 step 40/378 loss=0.2314 (qa 0.1992 icl 0.0605 reg 0.00195)
+2026-10-05 16:19:05,539 | INFO | fedicl.federated | round 5 client 1 step 60/378 loss=0.4963 (qa 0.4145 icl 0.1587 reg 0.00249)
+2026-10-05 16:20:47,779 | INFO | fedicl.federated | round 5 client 1 step 80/378 loss=0.3726 (qa 0.3378 icl 0.0638 reg 0.00291)
+2026-10-05 16:22:30,868 | INFO | fedicl.federated | round 5 client 1 step 100/378 loss=0.3445 (qa 0.3095 icl 0.0635 reg 0.00329)
+2026-10-05 16:24:11,427 | INFO | fedicl.federated | round 5 client 1 step 120/378 loss=0.3392 (qa 0.3024 icl 0.0663 reg 0.00362)
+2026-10-05 16:25:52,613 | INFO | fedicl.federated | round 5 client 1 step 140/378 loss=0.4162 (qa 0.3821 icl 0.0605 reg 0.00388)
+2026-10-05 16:27:33,861 | INFO | fedicl.federated | round 5 client 1 step 160/378 loss=0.3949 (qa 0.3442 icl 0.0934 reg 0.00404)
+2026-10-05 16:29:16,492 | INFO | fedicl.federated | round 5 client 1 step 180/378 loss=0.4391 (qa 0.3927 icl 0.0845 reg 0.00419)
+2026-10-05 16:30:58,240 | INFO | fedicl.federated | round 5 client 1 step 200/378 loss=0.2884 (qa 0.2521 icl 0.0639 reg 0.00432)
+2026-10-05 16:32:40,964 | INFO | fedicl.federated | round 5 client 1 step 220/378 loss=0.3119 (qa 0.2687 icl 0.0775 reg 0.00443)
+2026-10-05 16:34:22,833 | INFO | fedicl.federated | round 5 client 1 step 240/378 loss=0.3368 (qa 0.2956 icl 0.0733 reg 0.00453)
+2026-10-05 16:36:04,627 | INFO | fedicl.federated | round 5 client 1 step 260/378 loss=0.3295 (qa 0.2864 icl 0.0769 reg 0.00458)
+2026-10-05 16:37:46,601 | INFO | fedicl.federated | round 5 client 1 step 280/378 loss=0.3387 (qa 0.2965 icl 0.0751 reg 0.00463)
+2026-10-05 16:39:27,650 | INFO | fedicl.federated | round 5 client 1 step 300/378 loss=0.2868 (qa 0.2427 icl 0.0788 reg 0.00465)
+2026-10-05 16:41:06,712 | INFO | fedicl.federated | round 5 client 1 step 320/378 loss=0.2862 (qa 0.2554 icl 0.0521 reg 0.00465)
+2026-10-05 16:42:47,845 | INFO | fedicl.federated | round 5 client 1 step 340/378 loss=0.3450 (qa 0.2911 icl 0.0984 reg 0.00466)
+2026-10-05 16:44:30,298 | INFO | fedicl.federated | round 5 client 1 step 360/378 loss=0.4862 (qa 0.4358 icl 0.0915 reg 0.00463)
+2026-10-05 16:47:42,648 | INFO | fedicl.federated | round 5 client 2 step 20/175 loss=0.4096 (qa 0.3694 icl 0.0782 reg 0.00121)
+2026-10-05 16:49:23,905 | INFO | fedicl.federated | round 5 client 2 step 40/175 loss=0.4905 (qa 0.4439 icl 0.0895 reg 0.00189)
+2026-10-05 16:51:03,767 | INFO | fedicl.federated | round 5 client 2 step 60/175 loss=0.3919 (qa 0.3624 icl 0.0545 reg 0.00230)
+2026-10-05 16:52:42,754 | INFO | fedicl.federated | round 5 client 2 step 80/175 loss=0.5804 (qa 0.5144 icl 0.1268 reg 0.00259)
+2026-10-05 16:54:23,533 | INFO | fedicl.federated | round 5 client 2 step 100/175 loss=0.4523 (qa 0.4069 icl 0.0852 reg 0.00283)
+2026-10-05 16:56:04,562 | INFO | fedicl.federated | round 5 client 2 step 120/175 loss=0.3891 (qa 0.3406 icl 0.0911 reg 0.00296)
+2026-10-05 16:57:44,468 | INFO | fedicl.federated | round 5 client 2 step 140/175 loss=0.3731 (qa 0.3289 icl 0.0824 reg 0.00305)
+2026-10-05 16:59:24,027 | INFO | fedicl.federated | round 5 client 2 step 160/175 loss=0.3718 (qa 0.3347 icl 0.0680 reg 0.00312)
+2026-10-05 17:02:23,016 | INFO | fedicl.federated | round 5 client 3 step 20/84 loss=0.4801 (qa 0.4332 icl 0.0916 reg 0.00109)
+2026-10-05 17:04:03,492 | INFO | fedicl.federated | round 5 client 3 step 40/84 loss=0.3150 (qa 0.2827 icl 0.0612 reg 0.00169)
+2026-10-05 17:05:45,785 | INFO | fedicl.federated | round 5 client 3 step 60/84 loss=0.3544 (qa 0.3238 icl 0.0572 reg 0.00201)
+2026-10-05 17:07:27,636 | INFO | fedicl.federated | round 5 client 3 step 80/84 loss=0.4929 (qa 0.4551 icl 0.0712 reg 0.00213)
+2026-10-05 17:10:23,313 | INFO | fedicl.train |   eval validation client_1         val_loss=0.3094 acc=0.2987
+2026-10-05 17:12:54,249 | INFO | fedicl.train |   eval validation client_2         val_loss=0.3086 acc=0.3066
+2026-10-05 17:15:25,492 | INFO | fedicl.train |   eval validation client_3         val_loss=0.3099 acc=0.3097
+2026-10-05 17:17:42,891 | INFO | fedicl.train |   eval test       client_1         val_loss=0.3322 acc=0.2883
+2026-10-05 17:20:04,499 | INFO | fedicl.train |   eval test       client_2         val_loss=0.3362 acc=0.2679
+2026-10-05 17:22:23,133 | INFO | fedicl.train |   eval test       client_3         val_loss=0.3334 acc=0.2781
+2026-10-05 17:22:23,302 | INFO | fedicl.federated | round 5: monitored val_loss=0.3093 best=0.3093 (round_5)
+2026-10-05 17:22:24,268 | WARNING | fedicl.centralized | budget exhausted while val_loss still improving: consider `python -m fedicl.run --arm <arm> --extend_to 5`
+2026-10-05 17:22:24,591 | INFO | fedicl.run | done: {'best_at': 'round_5', 'best_test_acc': 0.27808326787117044}

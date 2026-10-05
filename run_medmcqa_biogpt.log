@@ -1,0 +1,3 @@
+[GPU] using GPU 1 (nvidia-smi index)
+arms: centralized_non_icl, federated_non_icl, centralized_icl, federated_icl
+================ centralized_non_icl ================

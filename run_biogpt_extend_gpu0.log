@@ -1,0 +1,28 @@
+2026-10-05 14:15:11,703 | INFO | fedicl.run | arm centralized_icl -> D:\phungthan\fedicl-medqa-v3\outputs\biogpt\seed42\centralized_icl (config_hash f4943f310191b8c0)
+
+Loading weights:   0%|          | 0/389 [00:00<?, ?it/s]
+Loading weights:  29%|##9       | 114/389 [00:00<00:00, 1075.47it/s]
+Loading weights:  57%|#####7    | 222/389 [00:00<00:00, 996.07it/s] 
+Loading weights:  83%|########2 | 322/389 [00:00<00:00, 825.07it/s]
+Loading weights: 100%|##########| 389/389 [00:00<00:00, 787.22it/s]
+2026-10-05 14:18:52,763 | INFO | fedicl.centralized | train items 10178 (demos dropped to fit max_seq_len: 1761)
+
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]
+Loading weights:  12%|#2        | 24/199 [00:00<00:01, 172.20it/s]
+Loading weights:  21%|##1       | 42/199 [00:00<00:01, 103.24it/s]
+Loading weights: 100%|##########| 199/199 [00:00<00:00, 507.47it/s]
+2026-10-05 14:18:55,771 | INFO | fedicl.centralized | resumed after epoch 3 (global_step 1911)
+2026-10-05 14:19:41,169 | INFO | fedicl.centralized | epoch 4 step 9/637 loss=0.3811 (qa 0.3476 icl 0.0670) lr=9.38e-05
+2026-10-05 14:21:17,374 | INFO | fedicl.centralized | epoch 4 step 29/637 loss=0.3647 (qa 0.3323 icl 0.0648) lr=9.26e-05
+2026-10-05 14:22:53,826 | INFO | fedicl.centralized | epoch 4 step 49/637 loss=0.3052 (qa 0.2702 icl 0.0698) lr=9.14e-05
+2026-10-05 14:24:30,424 | INFO | fedicl.centralized | epoch 4 step 69/637 loss=0.2247 (qa 0.2006 icl 0.0482) lr=9.03e-05
+2026-10-05 14:26:06,783 | INFO | fedicl.centralized | epoch 4 step 89/637 loss=0.2408 (qa 0.2051 icl 0.0712) lr=8.91e-05
+2026-10-05 14:27:43,549 | INFO | fedicl.centralized | epoch 4 step 109/637 loss=0.3003 (qa 0.2611 icl 0.0782) lr=8.79e-05
+2026-10-05 14:29:19,516 | INFO | fedicl.centralized | epoch 4 step 129/637 loss=0.3212 (qa 0.2764 icl 0.0897) lr=8.68e-05
+2026-10-05 14:30:55,950 | INFO | fedicl.centralized | epoch 4 step 149/637 loss=0.1667 (qa 0.1455 icl 0.0424) lr=8.56e-05
+2026-10-05 14:34:40,911 | INFO | fedicl.train |   eval validation train            val_loss=0.3018 acc=0.3200
+2026-10-05 14:34:40,918 | INFO | fedicl.centralized | check step_2070: val_loss=0.3018 best=0.2933 (step_1910) bad=2
+2026-10-05 14:34:40,918 | INFO | fedicl.centralized | early stop inside epoch 4: no epoch checkpoint
+2026-10-05 14:37:06,566 | INFO | fedicl.train |   eval validation train            val_loss=0.2933 acc=0.3192
+2026-10-05 14:39:54,891 | INFO | fedicl.train |   eval test       train            val_loss=0.3102 acc=0.2946
+2026-10-05 14:39:55,192 | INFO | fedicl.run | done: {'best_at': 'step_1910', 'best_test_acc': 0.2945797329143755}

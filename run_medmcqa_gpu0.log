@@ -1,0 +1,70 @@
+[GPU] using GPU 0 (nvidia-smi index)
+arms: centralized_non_icl, centralized_icl
+================ centralized_non_icl ================
+2026-10-05 14:44:45,666 | INFO | fedicl.run | arm centralized_non_icl -> D:\phungthan\fedicl-medqa-v3\outputs\MedMCQA\qwen3-0.6b\seed42\centralized_non_icl (config_hash e12150bccf0a9dad)
+
+Loading weights:   0%|          | 0/311 [00:00<?, ?it/s]
+Loading weights:   1%|          | 2/311 [00:00<00:16, 18.94it/s]
+Loading weights:   1%|1         | 4/311 [00:00<00:20, 15.26it/s]
+Loading weights:   2%|2         | 7/311 [00:00<00:15, 19.84it/s]
+Loading weights:   3%|3         | 10/311 [00:01<00:47,  6.27it/s]
+Loading weights:   5%|4         | 15/311 [00:01<00:29,  9.97it/s]
+Loading weights:   5%|5         | 17/311 [00:02<00:41,  7.00it/s]
+Loading weights:   6%|6         | 19/311 [00:02<01:00,  4.86it/s]
+Loading weights:   8%|8         | 25/311 [00:03<00:34,  8.35it/s]
+Loading weights:   9%|8         | 27/311 [00:03<00:37,  7.49it/s]
+Loading weights:   9%|9         | 29/311 [00:03<00:43,  6.53it/s]
+Loading weights:  10%|9         | 30/311 [00:04<00:51,  5.42it/s]
+Loading weights:  12%|#1        | 36/311 [00:04<00:27,  9.97it/s]
+Loading weights:  12%|#2        | 38/311 [00:04<00:24, 10.95it/s]
+Loading weights:  13%|#2        | 40/311 [00:04<00:26, 10.22it/s]
+Loading weights:  14%|#3        | 43/311 [00:04<00:22, 11.89it/s]
+Loading weights:  14%|#4        | 45/311 [00:05<00:21, 12.32it/s]
+Loading weights:  15%|#5        | 47/311 [00:05<00:29,  8.98it/s]
+Loading weights:  16%|#5        | 49/311 [00:05<00:25, 10.24it/s]
+Loading weights:  16%|#6        | 51/311 [00:05<00:24, 10.70it/s]
+Loading weights:  18%|#7        | 55/311 [00:05<00:17, 14.30it/s]
+Loading weights:  18%|#8        | 57/311 [00:06<00:18, 14.03it/s]
+Loading weights:  19%|#8        | 59/311 [00:06<00:23, 10.83it/s]
+Loading weights:  20%|#9        | 62/311 [00:06<00:20, 12.02it/s]
+Loading weights:  21%|##        | 64/311 [00:06<00:26,  9.20it/s]
+Loading weights: 100%|##########| 311/311 [00:07<00:00, 44.39it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\phungthan\fedicl-medqa-v3\fedicl\run.py", line 138, in <module>
+    main()
+  File "D:\phungthan\fedicl-medqa-v3\fedicl\run.py", line 124, in main
+    result = run(cfg, out, extend_to=args.extend_to)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\phungthan\fedicl-medqa-v3\fedicl\train_centralized.py", line 55, in run
+    ex, ids = load_examples(cfg)
+              ^^^^^^^^^^^^^^^^^^
+  File "D:\phungthan\fedicl-medqa-v3\fedicl\train_common.py", line 28, in load_examples
+    df = load_split(centralized_dir(cfg) / f"{s}.csv")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\phungthan\fedicl-medqa-v3\fedicl\data\io.py", line 30, in load_split
+    return pd.read_csv(path, dtype=str, keep_default_na=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\phungthan\fedicl-medqa-v3\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 872, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\phungthan\fedicl-medqa-v3\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 300, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\phungthan\fedicl-medqa-v3\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 1643, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\phungthan\fedicl-medqa-v3\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 1907, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "D:\phungthan\fedicl-medqa-v3\.venv\Lib\site-packages\pandas\io\common.py", line 930, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'D:\\phungthan\\fedicl-medqa-v3\\processed_data\\MedMCQA\\centralized\\train.csv'
+Exception: D:\phungthan\fedicl-medqa-v3\scripts\windows\env.ps1:54
+Line |
+  54 |          throw "FAILED (exit $LASTEXITCODE): $exe $($rest -join ' ')"
+     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | FAILED (exit 1): D:\phungthan\fedicl-medqa-v3\.venv\Scripts\python.exe -m fedicl.run --arm centralized_non_icl
+     | --config configs/medmcqa.yaml
